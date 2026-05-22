@@ -1,0 +1,6 @@
+.DS_Store
+.envrc
+.direnv
+**/build
+*.log
+*.mmon
