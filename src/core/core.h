@@ -73,6 +73,10 @@ private:
   bleeptools::XFade _mix;  
   bleeptools::XFade _reverb_send;
 
+  bleeptools::RandomImpulse _rnd_imp;
+  bleeptools::OnePoleSmoother _smooth;
+  std::array<daisysp::Svf, 2>  _tape_filter;
+
   std::array<daisysp::Svf, 2>  _filter;
   daisysp::ReverbSc* _reverb;
 
@@ -86,6 +90,9 @@ private:
   float _target_increment;
 
   float _in_mult;
+
+  float _tape_mod;
+  float _fltr_freq;
 
   PlayDirection _direction;
   int8_t _behavior_ptr;

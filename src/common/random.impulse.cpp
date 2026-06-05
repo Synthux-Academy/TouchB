@@ -1,13 +1,14 @@
 #include "random.impulse.h"
 
 #include <algorithm>
+#include "expose.h"
 
 using namespace bleeptools;
 
 RandomImpulse::RandomImpulse():
 _freq_hz        { 1.f },
 _imp_sec        { .05f },
-_prob           { 1.f },
+_prob           { .6f },
 _value          { 0.f },
 _iterator       { 0 },
 _period_samp    { 0 },

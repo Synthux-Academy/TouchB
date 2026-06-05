@@ -31,6 +31,16 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
     _buffer.set_rec_size(_buffer.size());
     _buffer.set_recording(true);
 
+    // Tape
+    _rnd_imp.init(sample_rate);
+    _rnd_imp.set_freq_hz(5.f);
+    _smooth.init(sample_rate, 0.06f);
+    for (auto& f: _tape_filter) {
+        f.Init(sample_rate);
+        f.SetDrive(.4f);
+        f.SetRes(.2f);
+    }
+
     //Fx
     _fx.init(sample_rate);
 
@@ -60,13 +70,21 @@ void Core::process(const float* const* in, float** out, size_t size)
 
     float in0, in1;
     for (size_t i = 0; i < size; i++) {
+        auto flutter = _rnd_imp.process() * _tape_mod;
+        auto smooth_tape = _smooth.process(std::abs(flutter));
+        volatile auto tape_freq = 16000.f * (1.f - std::clamp(8.f * smooth_tape, .0f, 8.f));
+        auto target = _target_increment * (1.f + flutter);
         auto set_increment = false;
-        if (std::fabs(_target_increment - _increment) > .002f) {
-            _increment += (_target_increment - _increment) * 0.0002083333333f; //100ms
+        if (flutter != 0) {
+            volatile auto a = 1;
+        }
+
+        if (std::fabs(target  - _increment) > .002f) {
+            _increment += (target - _increment) * 0.002083333333f; //20ms    0.0002083333333f; //100ms
             set_increment = true;
         }
         else {
-            _increment = _target_increment;
+            _increment = target;
         }
 
         in0 = in[0][i] * _in_mult;
@@ -90,20 +108,29 @@ void Core::process(const float* const* in, float** out, size_t size)
             }
         }
 
-        _mix.process(in0, in1, _bus[0], _bus[1], _bus[0], _bus[1]);
+        for (auto k = 0; k < 2; k++)
+        {
+            if (_tape_mod > 0) {
+                _tape_filter[k].SetFreq(tape_freq);
+                _tape_filter[k].Process(_bus[k]);
+                _bus[k] = _tape_filter[k].Low();
+            }
+
+            _filter[k].Process(_bus[k]);
+            _bus[k] = _fltr_lp ? _filter[k].Low() : _filter[k].High();
+        }
 
         _fx.process(_bus[0], _bus[1]);
 
         _reverb_send.process(0, 0, _bus[0], _bus[1], _reverb_in[0], _reverb_in[1]);
-        _reverb->Process(_reverb_in[0], _reverb_in[1], &(_reverb_out[0]), &(_reverb_out[1]));
+        _reverb->Process(_reverb_in[0], _reverb_in[1], &(_reverb_out[0]), &(_reverb_out[1]));        
         _bus[0] = (_bus[0] + _reverb_out[0]) * .75f;
         _bus[1] = (_bus[1] + _reverb_out[1]) * .75f;
 
-        _filter[0].Process(_bus[0]);
-        _filter[1].Process(_bus[1]);
+        _mix.process(in0, in1, _bus[0], _bus[1], _bus[0], _bus[1]);
 
-        out[0][i] = SoftLimit(_fltr_lp ? _filter[0].Low() : _filter[0].High());
-        out[1][i] = SoftLimit(_fltr_lp ? _filter[1].Low() : _filter[1].High());
+        out[0][i] = SoftLimit(_bus[0]);
+        out[1][i] = SoftLimit(_bus[1]);
     }
 };
 
@@ -211,7 +238,7 @@ void Core::set_pitch(const float norm)
 
 void Core::set_tape_mod(const float norm)
 {
-
+    _tape_mod = infrasonic::unitclamp(norm * .35f);
 }
 
 void Core::set_blur(const float norm)
@@ -242,10 +269,10 @@ void Core::set_filter(const float norm)
     _fltr_lp = norm < 0.5;
     auto val = _fltr_lp ? 2.f * norm : 2.f * (norm - .5f);
     auto clamped = infrasonic::unitclamp(val * val);
-    auto freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 10000.f);
+    _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 10000.f);
     auto res = infrasonic::map(clamped, 0.f, 1.f, 0.3f, 0.f);
     for (auto& f: _filter) {
-        f.SetFreq(freq);
+        f.SetFreq(_fltr_freq);
         f.SetRes(res);
     }
 }

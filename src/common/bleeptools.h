@@ -11,3 +11,4 @@
 #include "smooth.h"
 
 #include "synclock.h"
+#include "random.impulse.h"
