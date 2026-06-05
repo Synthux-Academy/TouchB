@@ -30,7 +30,7 @@ void Buffer::set_recording(const bool is_rec_on) {
     switch (_state) {
         case State::idle: 
             if (is_rec_on) {
-                _write_head = _read_head - std::min(size_t(1), _read_head);
+                _write_head = _read_head + 1;
                 _state = State::fadein;
                 _fade_counter = 0;
             }

@@ -109,7 +109,7 @@ void CoreUI::_process_ui_queue()
                     break;
                 }    
                 case Knobs::s32: _core.set_pitch(snapped_speed(val)); break;
-                case Knobs::s33: _core.set_start_mod(val);  break;
+                case Knobs::s33: _core.set_tape_mod(val);   break;
                 case Knobs::s34: _core.set_blur(val);       break;
                 case Knobs::s35: _core.set_size(val);       break;
                 case Knobs::s36: _core.set_mix(val);        break;

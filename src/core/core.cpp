@@ -10,7 +10,6 @@ using namespace synthux::touchb;
 using namespace daisysp;
 
 Core::Core():
-_size_mult          { 1.f },
 _increment          { 1.f },
 _target_increment   { 1.f },
 _in_mult            { 1.f },
@@ -113,10 +112,6 @@ void Core::_trigger_vox(const uint8_t idx)
         default: break;
     };
     v.set_reverse(reverse);
-    if (_start_mod > 0) {
-        auto mod_start = v.start() + _start_mod * (_dice(_rand) - .5f) * _buffer.size();
-        v.set_start(mod_start);
-    }
     v.set_shape(_fade_in ? 1.f : 0.f);
     v.trigger();
 }
@@ -164,18 +159,11 @@ void Core::remove_behavior(const uint8_t idx)
 
 void Core::_apply_behavior()
 {
-    VoxBehavior vb;
-    vb.buf_size = _buffer.size();
-    vb.lead_ptr = _behavior_ptr;
-    vb.pads = &_behavior;
-    auto p = vox_parms_for_behavior(vb);
-    _size_mult = p.size_mult;
-    _norm_start = p.norm_start;
-    _set_start();
-    _set_size();
-    for (auto& v: _vox) {
-        v.set_speed_mode(p.speed_mode);
-    }
+    // VoxBehavior vb;
+    // vb.buf_size = _buffer.size();
+    // vb.lead_ptr = _behavior_ptr;
+    // vb.pads = &_behavior;
+    // auto p = vox_parms_for_behavior(vb);
 }
 
 void Core::set_start(const float norm) 
@@ -196,7 +184,7 @@ void Core::set_size(const float norm)
 }
 void Core::_set_size()
 {
-    auto size = std::clamp(_norm_size * _size_mult, 0.f, 1.f) * _buffer.size();
+    auto size = infrasonic::unitclamp(_norm_size) * _buffer.size();
     for (auto& v: _vox) v.set_size(size);
 }
 
@@ -215,9 +203,9 @@ void Core::set_pitch(const float norm)
     _target_increment = mapped_speed(speed);
 }
 
-void Core::set_start_mod(const float norm)
+void Core::set_tape_mod(const float norm)
 {
-    _start_mod = norm;
+
 }
 
 void Core::set_blur(const float norm)

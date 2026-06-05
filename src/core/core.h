@@ -38,9 +38,10 @@ public:
   void set_size(const float);
   void set_filter(const float);
   void set_reverb(const float);
-  void set_start_mod(const float);
   void set_pitch(const float);
   void set_blur(const float);
+
+  void set_tape_mod(const float);
 
   void set_input_level(const float);
 
@@ -77,9 +78,6 @@ private:
 
   float _norm_start;
   float _norm_size;
-
-  float _start_mod;
-  float _size_mult;
 
   float _increment;
   float _target_increment;
