@@ -236,8 +236,8 @@ void Core::set_filter(const float norm)
     _fltr_lp = norm < 0.5;
     auto val = _fltr_lp ? 2.f * norm : 2.f * (norm - .5f);
     auto clamped = infrasonic::unitclamp(val * val);
-    auto freq = infrasonic::map(clamped, 0.f, 1.f, 30.f, 10000.f);
-    auto res = infrasonic::map(clamped, 0.f, 1.f, 0.5f, 0.f);
+    auto freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 10000.f);
+    auto res = infrasonic::map(clamped, 0.f, 1.f, 0.3f, 0.f);
     for (auto& f: _filter) {
         f.SetFreq(freq);
         f.SetRes(res);
@@ -251,6 +251,6 @@ void Core::set_play_direction(const PlayDirection direction)
 
 void Core::set_input_level(const float norm)
 {
-    auto db = infrasonic::map(norm, 0.f, 1.f, -90.f, 0.f);
+    auto db = infrasonic::map(norm, 0.f, 1.f, -40.f, 0.f);
     _in_mult = infrasonic::dbfs2lin(db);
 }

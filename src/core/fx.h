@@ -1,23 +1,50 @@
 #pragma once
 
+#include <daisysp.h>
+#include <bleeptools.h>
 #include "nocopy.h"
 
 namespace touchb {
 
 class Fx {
 public:
+    enum Type: uint8_t {
+        drive,
+        reduce,
+        Count
+    };
+
     struct Params {
-        float sample_rate;
+        std::array<Type, Type::Count> types;    
+
+        //Drive
+        float drive;
+        float vol_comp;
+
+        //Reduce
+        float downsample;
+        uint8_t bits;        
     };
 
     Fx() = default;
     ~Fx() = default;
 
-    void init(const Params);
+    void init(const float sample_rate);
     void process(float& inout0, float& inout1);
+
+    void engage(const Params);
+    void disengage();
     
 private:
     NOCOPY(Fx)
+
+    daisysp::Overdrive _drive;
+    daisysp::Decimator _decimator;
+
+    bleeptools::SoftSwitch _drive_on;
+    bleeptools::SoftSwitch _reduce_on;
+
+    float _drive_comp;
 };
 
 };

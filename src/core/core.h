@@ -70,11 +70,13 @@ private:
   Buffer _buffer;
   bleeptools::XFade _mix;  
   bleeptools::XFade _reverb_send;
+
+  
   std::array<daisysp::Svf, 2>  _filter;
   daisysp::ReverbSc* _reverb;
 
   std::default_random_engine _rand;
-    std::normal_distribution<float> _dice;
+  std::normal_distribution<float> _dice;
 
   float _norm_start;
   float _norm_size;
