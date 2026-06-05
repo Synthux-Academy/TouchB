@@ -22,7 +22,7 @@ public:
 
         //Drive
         float drive;
-        float vol_comp;
+        float vol_comp_dbfs;
 
         //Reduce
         float downsample;
@@ -41,8 +41,8 @@ public:
 private:
     NOCOPY(Fx)
 
-    daisysp::Overdrive _drive;
-    daisysp::Decimator _decimator;
+    std::array<daisysp::Overdrive, 2> _drive;
+    std::array<daisysp::Decimator, 2> _decimator;
 
     bleeptools::SoftSwitch _drive_on;
     bleeptools::SoftSwitch _reduce_on;

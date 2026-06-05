@@ -7,39 +7,56 @@ using namespace infrasonic;
 
 void Fx::init(const float sample_rate)
 {
-    _drive.Init();
-
-    _decimator.Init();
-    _decimator.SetSmoothCrushing(false);
+    // Drive
+    _drive_on.init(sample_rate);
+    for (auto& d: _drive) d.Init();
+    
+    // Reduce
+    _reduce_on.init(sample_rate);
+    for (auto& d: _decimator) {
+        d.Init();
+        d.SetSmoothCrushing(false);
+    }
 }
 
 void Fx::process(float& inout0, float& inout1)
 {
     float out[2] = { inout0, inout1 };
+    int i;
 
-    //
+    // Drive
+    _drive_on.process();
+    if (!_drive_on.is_idle()) {
+        for (i = 0; i < 2; i++) out[i] = _drive[i].Process(out[i]) * _drive_comp;
+    }
+    
+    // Reduce
+    _reduce_on.process();
+    if (!_reduce_on.is_idle()) {
+        for (i = 0; i < 2; i++) out[i] = _decimator[i].Process(out[i]);
+    }
+    
     inout0 = out[0];
     inout1 = out[1];
 }
 
 void Fx::engage(const Params p)
-{
-    disengage();
-    
+{   
     for (uint8_t i = 0; i < p.type_count; i++) {
         auto t = p.types[i];
         switch (t) {
             case Type::drive: {
                 _drive_on.set_on(true);
-                _drive.SetDrive(p.drive);
-                auto dbfs_comp = map(unitclamp(p.vol_comp), 0.f, 1.f, -40.f, -10.f);
-                _drive_comp = dbfs2lin(dbfs_comp);
+                for (auto& d: _drive) d.SetDrive(p.drive);
+                _drive_comp = dbfs2lin(p.vol_comp_dbfs);
                 break;
             }
             case Type::reduce: {
                 _reduce_on.set_on(true);
-                _decimator.SetBitsToCrush(p.bits);
-                _decimator.SetDownsampleFactor(p.downsample);
+                for (auto& d: _decimator) {
+                    d.SetBitsToCrush(p.bits);
+                    d.SetDownsampleFactor(p.downsample);
+                }
                 break;
 
             default: break;

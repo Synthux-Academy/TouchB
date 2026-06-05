@@ -28,19 +28,19 @@ namespace touchb {
             case 0: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
                 vp.fx.drive = 0.5;
-                vp.fx.vol_comp = 0.2;
+                vp.fx.vol_comp_dbfs = -18;
                 break;
             }
             case 1: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
-                vp.fx.drive = 0.2;
-                vp.fx.vol_comp = 0.2;
+                vp.fx.drive = 0.45;
+                vp.fx.vol_comp_dbfs = -16;
                 break;
             }
             case 5: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
-                vp.fx.drive = 0.8;
-                vp.fx.vol_comp = 0.2;
+                vp.fx.drive = 0.7;
+                vp.fx.vol_comp_dbfs = -22;
                 break;
             }
             case 2: {
