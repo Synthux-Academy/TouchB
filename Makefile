@@ -22,7 +22,7 @@ CPP_STANDARD = -std=gnu++17
 # LDSCRIPT = alt_sram.lds
 # BOOT_BIN = bootloader-v2.bin
 
-C_INCLUDES = -Isrc/ -Ilib/
+C_INCLUDES = -Isrc/ -Ilib/ -Isrc/common/
 C_USR_FLAGS = -ffast-math -funroll-loops
 
 # Sources

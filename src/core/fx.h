@@ -1,9 +1,11 @@
 #pragma once
 
 #include <daisysp.h>
-#include <bleeptools.h>
+
+#include "bleeptools.h"
 #include "nocopy.h"
 
+namespace synthux {
 namespace touchb {
 
 class Fx {
@@ -16,6 +18,7 @@ public:
 
     struct Params {
         std::array<Type, Type::Count> types;    
+        uint8_t type_count;
 
         //Drive
         float drive;
@@ -47,4 +50,5 @@ private:
     float _drive_comp;
 };
 
+};
 };

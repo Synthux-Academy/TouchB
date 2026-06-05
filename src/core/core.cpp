@@ -31,6 +31,9 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
     _buffer.set_rec_size(_buffer.size());
     _buffer.set_recording(true);
 
+    //Fx
+    _fx.init(sample_rate);
+
     // Filter
     for (auto& f: _filter) {
         f.Init(sample_rate);
@@ -88,6 +91,8 @@ void Core::process(const float* const* in, float** out, size_t size)
         }
 
         _mix.process(in0, in1, _bus[0], _bus[1], _bus[0], _bus[1]);
+
+        _fx.process(_bus[0], _bus[1]);
 
         _reverb_send.process(0, 0, _bus[0], _bus[1], _reverb_in[0], _reverb_in[1]);
         _reverb->Process(_reverb_in[0], _reverb_in[1], &(_reverb_out[0]), &(_reverb_out[1]));
@@ -151,6 +156,7 @@ void Core::remove_behavior(const uint8_t idx)
     if (!_has_behavior()) {
         for (auto& v: _vox) v.stop();   
         _buffer.set_recording(true);
+        _fx.disengage();
     }
     else {
         _apply_behavior();
@@ -159,11 +165,11 @@ void Core::remove_behavior(const uint8_t idx)
 
 void Core::_apply_behavior()
 {
-    // VoxBehavior vb;
-    // vb.buf_size = _buffer.size();
-    // vb.lead_ptr = _behavior_ptr;
-    // vb.pads = &_behavior;
-    // auto p = vox_parms_for_behavior(vb);
+    Combo c;
+    c.lead_ptr = _behavior_ptr;
+    c.idxs = &_behavior;
+    auto b = behavior4combo(c);
+    _fx.engage(b.fx);
 }
 
 void Core::set_start(const float norm) 

@@ -1,7 +1,7 @@
 #include "fx.h"
 #include "common/common.h"
 
-using namespace touchb;
+using namespace synthux::touchb;
 using namespace daisysp;
 using namespace infrasonic;
 
@@ -25,22 +25,25 @@ void Fx::process(float& inout0, float& inout1)
 void Fx::engage(const Params p)
 {
     disengage();
-
     
-    
-    for (auto t: p.types) {
+    for (uint8_t i = 0; i < p.type_count; i++) {
+        auto t = p.types[i];
         switch (t) {
-            case Type::drive:
+            case Type::drive: {
                 _drive_on.set_on(true);
                 _drive.SetDrive(p.drive);
                 auto dbfs_comp = map(unitclamp(p.vol_comp), 0.f, 1.f, -40.f, -10.f);
                 _drive_comp = dbfs2lin(dbfs_comp);
                 break;
-
-            case Type::reduce:
+            }
+            case Type::reduce: {
                 _reduce_on.set_on(true);
                 _decimator.SetBitsToCrush(p.bits);
                 _decimator.SetDownsampleFactor(p.downsample);
+                break;
+
+            default: break;
+            }
         }
     }
 }

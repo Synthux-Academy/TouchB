@@ -1,4 +1,4 @@
-#pragma once;
+#pragma once
 
 #include "hann.h"
 #include "xfade.h"

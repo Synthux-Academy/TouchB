@@ -5,10 +5,9 @@
 namespace synthux {
 namespace touchb {
     
-    struct VoxBehavior {
-        std::array<uint8_t, 7>* pads;
+    struct Combo {
+        std::array<uint8_t, 7>* idxs;
         uint8_t lead_ptr;
-        uint32_t buf_size;
     };
 
     enum FXType: uint8_t {
@@ -16,49 +15,57 @@ namespace touchb {
         bitcrusher
     };
 
-    struct VoxParams {
-        float drive;
-        float volume;
-        FXType fx_type;
+    struct Behavior {
+        Fx::Params fx;
     };
 
-    VoxParams vox_parms_for_behavior(VoxBehavior vb)
+    Behavior behavior4combo(Combo c)
     {
-        VoxParams vp;
+        Behavior vp;
         
-        auto lead = (*vb.pads)[vb.lead_ptr];
+        auto lead = (*c.idxs)[c.lead_ptr];
         switch (lead) {
             case 0: {
-                vp.fx_type = FXType::drive;
-                
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
+                vp.fx.drive = 0.5;
+                vp.fx.vol_comp = 0.2;
                 break;
             }
             case 1: {
-                
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
+                vp.fx.drive = 0.2;
+                vp.fx.vol_comp = 0.2;
                 break;
             }
             case 5: {
-                
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
+                vp.fx.drive = 0.8;
+                vp.fx.vol_comp = 0.2;
                 break;
             }
             case 2: {
-                
+                //CLEAN
                 break;
             }
             case 3: {
-                
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
+                vp.fx.bits = 12;
+                vp.fx.downsample = 0.1;
                 break;
             }
             case 4: {
-                
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
+                vp.fx.bits = 10;
+                vp.fx.downsample = 0.3;
                 break;
             }
             case 6: {
-                
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
+                vp.fx.bits = 8;
+                vp.fx.downsample = 0.8;
                 break;
             }
         }
-        
         return vp;
     }   
 };

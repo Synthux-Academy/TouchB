@@ -4,13 +4,13 @@
 #include <random>
 #include <daisysp.h>
 
-#include "common/xfade.h"
-#include "common/smooth.h"
-#include "common/sdram_alloc.h"
+#include "bleeptools.h"
+#include "sdram_alloc.h"
 #include "nocopy.h"
 #include "config.h"
 #include "vox.h"
 #include "buffer.h"
+#include "fx.h"
 
 namespace synthux {
 namespace touchb {
@@ -64,6 +64,8 @@ private:
   std::array<float, 2> _reverb_out;
   std::array<float, 2> _bus;
 
+  Fx _fx;
+
   std::array<Vox, kVoxCount> _vox;
   std::bitset<kVoxCount> _is_active;
   std::array<uint8_t, 7> _behavior;
@@ -71,7 +73,6 @@ private:
   bleeptools::XFade _mix;  
   bleeptools::XFade _reverb_send;
 
-  
   std::array<daisysp::Svf, 2>  _filter;
   daisysp::ReverbSc* _reverb;
 
