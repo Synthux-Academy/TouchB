@@ -110,6 +110,8 @@ void Core::process(const float* const* in, float** out, size_t size)
             }
         }
 
+        _pre_mix.process(in0, in1, _bus[0], _bus[1], _bus[0], _bus[1]);
+
         for (auto k = 0; k < 2; k++) {
             if (_tape_mod > 0) {
                 _tape_filter[k].SetFreq(tape_freq);
@@ -128,7 +130,7 @@ void Core::process(const float* const* in, float** out, size_t size)
         _bus[0] = (_bus[0] + _reverb_out[0]) * .75f;
         _bus[1] = (_bus[1] + _reverb_out[1]) * .75f;
 
-        _mix.process(in0, in1, _bus[0], _bus[1], _bus[0], _bus[1]);
+        _post_mix.process(in0, in1, _bus[0], _bus[1], _bus[0], _bus[1]);
 
         out[0][i] = SoftLimit(_bus[0]);
         out[1][i] = SoftLimit(_bus[1]);
@@ -224,7 +226,8 @@ void Core::_set_size()
 
 void Core::set_mix(const float norm)
 {
-    _mix.set_stage(norm);
+    _pre_mix.set_stage(norm);
+    _post_mix.set_stage(norm);
 }
 
 float mapped_speed(const float val) 

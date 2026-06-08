@@ -22,11 +22,12 @@ public:
 
         //Drive
         float drive;
-        float vol_comp_dbfs;
 
         //Reduce
         float downsample;
         uint8_t bits;        
+
+        float vol_comp_dbfs;
     };
 
     Fx() = default;

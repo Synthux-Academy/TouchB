@@ -70,7 +70,8 @@ private:
   std::bitset<kVoxCount> _is_active;
   std::array<uint8_t, 7> _behavior;
   Buffer _buffer;
-  bleeptools::XFade _mix;  
+  bleeptools::XFade _pre_mix;  
+  bleeptools::XFade _post_mix;  
   bleeptools::XFade _reverb_send;
 
   bleeptools::RandomImpulse _rnd_imp;
