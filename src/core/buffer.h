@@ -25,7 +25,6 @@ public:
     void init(Frame* buf, size_t length);
 
     void read_linear(float frame, float& out0, float& out1);
-    void read_cubic(float frame, float& out0, float& out1);
     
     void set_recording(const bool is_rec_on);
     bool is_recording() const { return _state != State::idle; }
@@ -33,7 +32,6 @@ public:
     void set_feedback(const float val); 
     void write(const float in0, const float in1);
     void cut();
-    bool read_reset_did_cut();
     void clear();
 
     float norm_rec_size() const { return _size * _buffer_size_kof; }
@@ -52,6 +50,7 @@ private:
 
     static constexpr auto kFadeCurveKof = 1.f / kRecordFade;
     void _read(size_t frame, float& out0, float& out1);
+    void _start_recording();
 
     enum class State: uint8_t {
         idle,
@@ -69,11 +68,12 @@ private:
     size_t  _size;
     size_t  _target_length;
     size_t  _write_head;
+    size_t  _write_counter;
     size_t  _read_head;
     int32_t _fade_counter;
-    size_t  _wrap_counter;
     State   _state;
     bool    _did_cut;
+    bool    _is_pending;
 };
 
 };

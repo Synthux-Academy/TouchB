@@ -29,23 +29,29 @@ void Buffer::init(Frame* buf, size_t length) {
 void Buffer::set_recording(const bool is_rec_on) {
     switch (_state) {
         case State::idle: 
-            if (is_rec_on) {
-                _write_head = _read_head + kRecordFade;
-                _state = State::fadein;
-                _fade_counter = 0;
-            }
+            if (is_rec_on) _start_recording();
             break;
-            
-        case State::fadeout: break;
+
+        case State::fadein: break;
         
         default:
-            if (!is_rec_on) {
+            if (is_rec_on) {
+                _is_pending = true;
                 _state = State::fadeout;
-                //wrap around and fade out
-                if (!_cut_switch.is_on()) _write_head = 0;
+            }
+            else {
+                _state = State::fadeout;
             }
     }
 };
+
+void Buffer::_start_recording()
+{
+    _write_head = (_read_head + kRecordFade) % _buffer_size;
+    _write_counter = 0;
+    _state = State::fadein;
+    _is_pending = false;
+}
 
 void Buffer::set_feedback(const float val) { 
     auto dbfs = 60.f * (val - 1.f);
@@ -55,21 +61,14 @@ void Buffer::set_feedback(const float val) {
 void Buffer::set_rec_size(const size_t value)
 {
     _size = value;
-    cut();
+    if (!_cut_switch.is_on()) cut();
 }
 
 void Buffer::cut()
 {
-    if (_cut_switch.is_on()) return;
     _cut_switch.set_on(true);
     _did_cut = true;
     _write_head = 0;
-}
-bool Buffer::read_reset_did_cut()
-{
-    if (!_did_cut) return false;
-    _did_cut = false;
-    return true;
 }
 
 void Buffer::clear() 
@@ -108,56 +107,6 @@ void Buffer::read_linear(float frame, float& out0, float& out1)
     
 }
 
-void Buffer::read_cubic(float frame, float& out0, float& out1) 
-{
-    // Wrap negative
-    while (frame < 0) frame += _size;
-
-    // Take integer part of the frame
-    auto int_fr = static_cast<size_t>(frame);
-
-    // Take fractional part
-    auto frac_fr = frame - int_fr;
-    
-    // Read the buffer
-    auto a0_m1 = 0.f;
-    auto a1_m1 = 0.f;
-    if (int_fr > 0) {
-        auto ph_m1 = int_fr - 1;
-        _read(ph_m1, a0_m1, a1_m1);
-        _read_head = int_fr - 1;
-    }
-    else {
-        _read_head = int_fr;
-    }
-    auto ph_p1 = int_fr + 1;
-    auto ph_p2 = int_fr + 2;
-
-    auto a0 = 0.f;
-    auto a1 = 0.f;
-    auto a0_p1 = 0.f;
-    auto a1_p1 = 0.f;
-    auto a0_p2 = 0.f;
-    auto a1_p2 = 0.f;
-    
-    _read(int_fr, a0, a1);
-    _read(ph_p1, a0_p1, a1_p1);
-    _read(ph_p2, a0_p2, a1_p2);
-    
-    auto c0_0 = a0;
-    auto c0_1 = a1;
-    auto c1_0 = .5f * (a0_p1 - a0_m1);
-    auto c1_1 = .5f * (a1_p1 - a1_m1);
-    auto c2_0 = a0_m1 - 2.5f * a0 + 2.f * a0_p1 - .5f * a0_p2;
-    auto c2_1 = a1_m1 - 2.5f * a1 + 2.f * a1_p1 - .5f * a1_p2;
-    auto c3_0 = .5f * (a0_p2 - a0_m1) + 1.5f * (a0 - a0_p1);
-    auto c3_1 = .5f * (a1_p2 - a1_m1) + 1.5f * (a1 - a1_p1);
-
-    // Interpolate
-    out0 = (((c3_0 * frac_fr + c2_0) * frac_fr + c1_0) * frac_fr + c0_0);
-    out1 = (((c3_1 * frac_fr + c2_1) * frac_fr + c1_1) * frac_fr + c0_1);
-}
-
 void Buffer::_read(size_t frame, float& out0, float& out1) {
     frame %= _size;
     auto f = _buffer[frame];
@@ -180,8 +129,13 @@ void Buffer::write(const float in0, const float in1) {
         case State::fadeout:
             fade = bleeptools::Hann_Value_At(_fade_counter * kFadeCurveKof);
             if (--_fade_counter <= 0) {
-                cut();
-                _state = State::idle;
+                if (!_cut_switch.is_on()) cut();
+                if (_is_pending) {
+                    _start_recording();
+                }
+                else {
+                    _state = State::idle;
+                }
                 return;
             }
     }
@@ -197,6 +151,11 @@ void Buffer::write(const float in0, const float in1) {
 
     // Advance write head
     _write_head ++;
+    _write_counter ++;
+    if (_state == State::sustain && _write_counter >= _size) {
+        _state = State::fadeout;
+    }
+
     if (_cut_switch.is_on()) {
         if (_write_head >= _size) _write_head = 0;
     } 

@@ -4,7 +4,8 @@
 #include <daisysp.h>
 #include "hw/buffer.sdram.h"
 #include "behavior.h"
-#include "common/common.h"
+#include "common.h"
+#include "expose.h"
 
 using namespace synthux::touchb;
 using namespace daisysp;
@@ -97,6 +98,11 @@ void Core::process(const float* const* in, float** out, size_t size)
                 v.process(vout0, vout1);
                 _bus[0] += vout0;
                 _bus[1] += vout1;
+                if (_rec_cued) {
+                    _buffer.set_recording(true);
+                    _rec_cued = false;
+                }
+
                 if (!v.is_playing()) {
                     _is_active.reset(v.idx());
                     if (_has_behavior()) _trigger_vox((v.idx() + 1) % kVoxCount);
@@ -104,8 +110,7 @@ void Core::process(const float* const* in, float** out, size_t size)
             }
         }
 
-        for (auto k = 0; k < 2; k++)
-        {
+        for (auto k = 0; k < 2; k++) {
             if (_tape_mod > 0) {
                 _tape_filter[k].SetFreq(tape_freq);
                 _tape_filter[k].Process(_bus[k]);
@@ -154,8 +159,8 @@ void Core::add_behavior(const uint8_t idx)
     _behavior[++_behavior_ptr] = idx;
     _apply_behavior();
     if (_behavior_ptr == 0) {
-        _buffer.set_recording(false);
         _trigger_vox();
+        _rec_cued = true;
     }
 }
 
@@ -177,9 +182,9 @@ void Core::remove_behavior(const uint8_t idx)
     }
 
     if (!_has_behavior()) {
-        for (auto& v: _vox) v.stop();   
-        _buffer.set_recording(true);
+        for (auto& v: _vox) v.stop();
         _fx.disengage();
+        _rec_cued = false;
     }
     else {
         _apply_behavior();
@@ -266,11 +271,13 @@ void Core::set_filter(const float norm)
     auto val = _fltr_lp ? 2.f * norm : 2.f * (norm - .5f);
     auto clamped = infrasonic::unitclamp(val * val);
     if (_fltr_lp) {
-        _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 10000.f);
+        _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 500.f, 10000.f);
     }
     else {
-        _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 10000.f);
+        _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 5000.f);
     }
+
+    FP3(_fltr_freq);
     
     auto res = infrasonic::map(clamped, 0.f, 1.f, 0.2f, 0.f);
     for (auto& f: _filter) {

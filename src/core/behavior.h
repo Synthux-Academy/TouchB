@@ -22,6 +22,7 @@ namespace touchb {
     Behavior behavior4combo(Combo c)
     {
         Behavior vp;
+        memset(&vp, 0, sizeof(vp));
         
         auto lead = (*c.idxs)[c.lead_ptr];
         switch (lead) {

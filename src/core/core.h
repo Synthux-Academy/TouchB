@@ -98,6 +98,7 @@ private:
   int8_t _behavior_ptr;
   bool _fltr_lp;
   bool _fade_in;
+  bool _rec_cued;
 };
 
 };
