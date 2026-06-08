@@ -70,9 +70,6 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
 
 void Core::process(const float* const* in, float** out, size_t size) 
 {
-    // memcpy(out, in, sizeof(float) * 2 * size);
-    // return;
-
     float in0, in1;
     for (size_t i = 0; i < size; i++) {
         auto flutter = _rnd_imp.process() * _tape_mod;
@@ -268,13 +265,14 @@ void Core::set_envelope_on(const bool on)
     _fade_in = on;
 }
 
-void Core::set_reverb(const float norm)
+void Core::set_reverb_send(const float norm)
 {
     _reverb_send.set_stage(norm);
-    _rev_fb = kReverbFeedback;
-    if (norm > .5f) {
-        _rev_fb += (1.f - kReverbFeedback) * (2.f * norm - 1.f);   
-    }
+}
+
+void Core::set_reverb_fb(const float norm)
+{
+    _reverb->SetFeedback(norm);
 }
 
 void Core::set_filter(const float norm)

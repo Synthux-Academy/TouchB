@@ -49,6 +49,9 @@ void CoreUI::init()
 
     _fltr_val.set(.5f);
     _inp_val.set(1.f);
+
+    _verb_mix.set(0.f);
+    _verb_fb.set(.5f);
 };
 
 void CoreUI::process() 
@@ -85,6 +88,12 @@ void CoreUI::process()
         _core.set_filter(_fltr_val.value());
         _core.set_input_level(_inp_val.value());
     }
+    //Reverb
+    if (_apply.test(Knobs::s30)) {
+        _core.set_reverb_send(_verb_mix.value());
+        _core.set_reverb_fb(_verb_fb.value());
+    }
+
     _apply.reset();
 };
 
@@ -102,10 +111,14 @@ void CoreUI::_process_ui_queue()
             val = infrasonic::map(val, .02f, .95f, 0.f, 1.f);
             _apply.set(id);
             switch (id) {
-                case Knobs::s30: _core.set_reverb(val);     break;
+                case Knobs::s30: {
+                    _verb_mix.process(val, !is_alt_touched);
+                    _verb_fb.process(val, is_alt_touched);
+                    break;
+                }
                 case Knobs::s31: {
-                    _fltr_val.process(val, !is_alt_touched, nullptr);
-                    _inp_val.process(val, is_alt_touched, nullptr);
+                    _fltr_val.process(val, !is_alt_touched);
+                    _inp_val.process(val, is_alt_touched);
                     break;
                 }    
                 case Knobs::s32: _core.set_pitch(snapped_speed(val)); break;

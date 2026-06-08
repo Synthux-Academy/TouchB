@@ -38,7 +38,8 @@ public:
   void set_start(const float);
   void set_size(const float);
   void set_filter(const float);
-  void set_reverb(const float);
+  void set_reverb_send(const float);
+  void set_reverb_fb(const float);
   void set_pitch(const float);
   void set_blur(const float);
 

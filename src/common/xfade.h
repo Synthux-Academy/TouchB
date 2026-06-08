@@ -67,9 +67,9 @@ private:
   void _calculate_multipliers()
   {
     auto stage = std::clamp(_is_inverted ? 1.f - _stage : _stage, 0.f, 1.f);
-    auto sq = _stage * _stage;
+    auto sq = stage * stage;
     _lhs = 1.f - sq;
-    _rhs = 2.f * _stage - sq;
+    _rhs = 2.f * stage - sq;
   }
 
   float _stage;

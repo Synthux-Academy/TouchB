@@ -34,7 +34,7 @@ public:
 
 int id() const { return _id; }
 
-float process(const float value, const bool active, int* id);
+float process(const float value, const bool active, int* id = nullptr);
 
 bool is_tracking() const { return _is_tracking; }
 
