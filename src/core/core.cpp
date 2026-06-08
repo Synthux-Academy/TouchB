@@ -248,7 +248,7 @@ void Core::set_pitch(const float norm)
 
 void Core::set_tape_mod(const float norm)
 {
-    _tape_mod = infrasonic::unitclamp(norm * .35f);
+    _tape_mod = infrasonic::unitclamp(norm * .25f);
 }
 
 void Core::set_blur(const float norm)
