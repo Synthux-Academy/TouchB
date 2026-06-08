@@ -63,6 +63,7 @@ private:
 
   std::array<float, 2> _reverb_in;
   std::array<float, 2> _reverb_out;
+  std::array<float, 2> _in_buf_mix_bus;
   std::array<float, 2> _bus;
 
   Fx _fx;
@@ -71,8 +72,10 @@ private:
   std::bitset<kVoxCount> _is_active;
   std::array<uint8_t, 7> _behavior;
   Buffer _buffer;
-  bleeptools::XFade _pre_mix;  
-  bleeptools::XFade _post_mix;  
+  bleeptools::SoftSwitch _in_buf_switch;
+  bleeptools::XFade _in_buf_mix;
+  bleeptools::XFade _pre_fx_mix;
+  bleeptools::XFade _post_fx_mix;  
   bleeptools::XFade _reverb_send;
   
   bleeptools::PeakFollower _reverb_absorber;

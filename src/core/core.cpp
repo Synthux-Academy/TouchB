@@ -42,6 +42,8 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
         f.SetRes(.2f);
     }
 
+    _in_buf_switch.init(sample_rate);
+
     //Fx
     _fx.init(sample_rate);
 
@@ -111,8 +113,11 @@ void Core::process(const float* const* in, float** out, size_t size)
                 }
             }
         }
+        
+        _in_buf_mix.set_stage(_in_buf_switch.process());
+        _in_buf_mix.process(in0, in1, _bus[0], _bus[1], _in_buf_mix_bus[0], _in_buf_mix_bus[1]);
 
-        _pre_mix.process(in0, in1, _bus[0], _bus[1], _bus[0], _bus[1]);
+        _pre_fx_mix.process(_in_buf_mix_bus[0], _in_buf_mix_bus[1], _bus[0], _bus[1], _bus[0], _bus[1]);
 
         for (auto k = 0; k < 2; k++) {
             if (_tape_mod > 0) {
@@ -132,8 +137,10 @@ void Core::process(const float* const* in, float** out, size_t size)
         _reverb->Process(_reverb_in[0], _reverb_in[1], &(_reverb_out[0]), &(_reverb_out[1]));        
         _bus[0] = (_bus[0] + _reverb_out[0]) * .75f;
         _bus[1] = (_bus[1] + _reverb_out[1]) * .75f;
-
-        _post_mix.process(in0, in1, _bus[0], _bus[1], _bus[0], _bus[1]);
+        
+        if (!_has_behavior()) {
+            _post_fx_mix.process(_in_buf_mix_bus[0], _in_buf_mix_bus[1], _bus[0], _bus[1], _bus[0], _bus[1]);
+        }
 
         out[0][i] = SoftLimit(_bus[0]);
         out[1][i] = SoftLimit(_bus[1]);
@@ -165,6 +172,7 @@ void Core::add_behavior(const uint8_t idx)
     _apply_behavior();
     if (_behavior_ptr == 0) {
         _trigger_vox();
+        _in_buf_switch.set_on(true);
         _rec_cued = true;
     }
 }
@@ -189,6 +197,7 @@ void Core::remove_behavior(const uint8_t idx)
     if (!_has_behavior()) {
         for (auto& v: _vox) v.stop();
         _fx.disengage();
+        _in_buf_switch.set_on(false);
         _rec_cued = false;
     }
     else {
@@ -229,8 +238,8 @@ void Core::_set_size()
 
 void Core::set_mix(const float norm)
 {
-    _pre_mix.set_stage(norm);
-    _post_mix.set_stage(norm);
+    _pre_fx_mix.set_stage(norm);
+    _post_fx_mix.set_stage(1.f - norm);
 }
 
 float mapped_speed(const float val) 
@@ -277,7 +286,7 @@ void Core::set_filter(const float norm)
         _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 500.f, 10000.f);
     }
     else {
-        _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 5000.f);
+        _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 2000.f);
     }
 
     FP3(_fltr_freq);

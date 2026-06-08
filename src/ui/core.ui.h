@@ -31,6 +31,9 @@ private:
     bleeptools::MValue _fltr_val;
     bleeptools::MValue _inp_val;
 
+    bleeptools::MValue _verb_mix;
+    bleeptools::MValue _verb_fb;
+
     std::bitset<Knobs::Count> _apply;
 
     daisy::UiEventQueue _ui_queue;
