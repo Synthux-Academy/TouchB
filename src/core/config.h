@@ -19,7 +19,7 @@ static constexpr size_t kDefaultWindowSize = 2880; //60ms @ 48k 1x
 
 // Slice ........................................
 static constexpr size_t kSliceSlope = 192; //4ms
-static constexpr size_t kSliceMinSize = 2 * kSliceSlope + 4416; //+92ms sustain = 100ms @ 48K 1x 
+static constexpr size_t kSliceMinSize = 2 * kSliceSlope + 2016; //+42ms sustain = 50ms @ 48K 1x 
 
 // Reverb .......................................
 static constexpr float kReverbFeedback = .6f;

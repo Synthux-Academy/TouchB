@@ -226,7 +226,8 @@ void Core::set_size(const float norm)
 }
 void Core::_set_size()
 {
-    auto size = infrasonic::unitclamp(_norm_size) * _buffer.size();
+    auto size = static_cast<size_t>(infrasonic::unitclamp(_norm_size) * _buffer.size());
+    size = std::max(size, kSliceMinSize);
     for (auto& v: _vox) v.set_size(size);
 }
 
