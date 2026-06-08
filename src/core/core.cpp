@@ -33,7 +33,7 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
 
     // Tape
     _rnd_imp.init(sample_rate);
-    _rnd_imp.set_freq_hz(5.f);
+    _rnd_imp.set_freq_hz(4.f);
     _smooth.init(sample_rate, 0.06f);
     for (auto& f: _tape_filter) {
         f.Init(sample_rate);
@@ -75,10 +75,6 @@ void Core::process(const float* const* in, float** out, size_t size)
         volatile auto tape_freq = 16000.f * (1.f - std::clamp(8.f * smooth_tape, .0f, 8.f));
         auto target = _target_increment * (1.f + flutter);
         auto set_increment = false;
-        if (flutter != 0) {
-            volatile auto a = 1;
-        }
-
         if (std::fabs(target  - _increment) > .002f) {
             _increment += (target - _increment) * 0.002083333333f; //20ms    0.0002083333333f; //100ms
             set_increment = true;
@@ -269,8 +265,14 @@ void Core::set_filter(const float norm)
     _fltr_lp = norm < 0.5;
     auto val = _fltr_lp ? 2.f * norm : 2.f * (norm - .5f);
     auto clamped = infrasonic::unitclamp(val * val);
-    _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 10000.f);
-    auto res = infrasonic::map(clamped, 0.f, 1.f, 0.3f, 0.f);
+    if (_fltr_lp) {
+        _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 10000.f);
+    }
+    else {
+        _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 50.f, 10000.f);
+    }
+    
+    auto res = infrasonic::map(clamped, 0.f, 1.f, 0.2f, 0.f);
     for (auto& f: _filter) {
         f.SetFreq(_fltr_freq);
         f.SetRes(res);

@@ -30,12 +30,12 @@ void Buffer::set_recording(const bool is_rec_on) {
     switch (_state) {
         case State::idle: 
             if (is_rec_on) {
-                _write_head = _read_head + 1;
+                _write_head = _read_head + kRecordFade;
                 _state = State::fadein;
                 _fade_counter = 0;
             }
             break;
-        
+            
         case State::fadeout: break;
         
         default:
