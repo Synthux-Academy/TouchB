@@ -58,8 +58,6 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
     _reverb->Init(sample_rate);
     _reverb->SetFeedback(kReverbFeedback);
     _reverb->SetLpFreq(kReverLPFreq);
-    _reverb_absorber.init(sample_rate);
-    _reverb_absorber.set_release_time_s(3.f);
 
     // Controls
     set_start(0.f);
@@ -129,7 +127,6 @@ void Core::process(const float* const* in, float** out, size_t size)
 
         _fx.process(_bus[0], _bus[1]);
 
-        _reverb->SetFeedback(infrasonic::unitclamp(_reverb_absorber.process(_rev_fb)));
         _reverb_send.process(0, 0, _bus[0], _bus[1], _reverb_in[0], _reverb_in[1]);
         _reverb->Process(_reverb_in[0], _reverb_in[1], &(_reverb_out[0]), &(_reverb_out[1]));        
         _bus[0] = (_bus[0] + _reverb_out[0]) * .75f;

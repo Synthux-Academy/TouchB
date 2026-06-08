@@ -31,7 +31,7 @@ private:
     bleeptools::MValue _fltr_val;
     bleeptools::MValue _inp_val;
 
-    bleeptools::MValue _verb_mix;
+    bleeptools::MValue _verb_send;
     bleeptools::MValue _verb_fb;
 
     std::bitset<Knobs::Count> _apply;
@@ -39,6 +39,8 @@ private:
     daisy::UiEventQueue _ui_queue;
     daisy::PotMonitor<Knobs, Knobs::Count> _pot_monitor;
     void _process_ui_queue();
+
+    daisy::StopwatchTimer _init_timer;
 
     std::bitset<Pads::Count> _touched;
     void _on_pad_touch(Pads::Pad);
@@ -53,6 +55,7 @@ private:
 
     Pads::Pad _latched_pad;
     bool _is_latched;
+    bool _is_init;
 };
 
 }; // namespace touchb

@@ -78,8 +78,6 @@ private:
   bleeptools::XFade _pre_fx_mix;
   bleeptools::XFade _post_fx_mix;  
   bleeptools::XFade _reverb_send;
-  
-  bleeptools::PeakFollower _reverb_absorber;
 
   bleeptools::RandomImpulse _rnd_imp;
   bleeptools::OnePoleSmoother _smooth;

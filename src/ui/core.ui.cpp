@@ -47,11 +47,13 @@ void CoreUI::init()
     _touch.pads().set_on_touch(on_touch);
     _touch.pads().set_on_release(on_release);
 
+    _init_timer.Init();
+
     _fltr_val.set(.5f);
     _inp_val.set(1.f);
 
-    _verb_mix.set(0.f);
-    _verb_fb.set(.5f);
+    _verb_send.set(0.f);
+    _verb_fb.set(.7f);
 };
 
 void CoreUI::process() 
@@ -88,9 +90,10 @@ void CoreUI::process()
         _core.set_filter(_fltr_val.value());
         _core.set_input_level(_inp_val.value());
     }
+
     //Reverb
     if (_apply.test(Knobs::s30)) {
-        _core.set_reverb_send(_verb_mix.value());
+        _core.set_reverb_send(_verb_send.value());
         _core.set_reverb_fb(_verb_fb.value());
     }
 
@@ -99,6 +102,16 @@ void CoreUI::process()
 
 void CoreUI::_process_ui_queue()
 {
+    if (!_is_init && _init_timer.HasPassedMs(100)) {
+        auto& knobs = _touch.knobs();
+        _apply.set(Knobs::s30);
+        _verb_send.set(knobs.GetPotValue(Knobs::s30));
+        
+        _apply.set(Knobs::s31);
+        _fltr_val.set(knobs.GetPotValue(Knobs::s31));
+        _is_init = true;
+    }
+
     _pot_monitor.Process();
     
     auto is_alt_touched = _touched.test(Pads::Tou) || _touched.test(Pads::Ch);
@@ -112,7 +125,7 @@ void CoreUI::_process_ui_queue()
             _apply.set(id);
             switch (id) {
                 case Knobs::s30: {
-                    _verb_mix.process(val, !is_alt_touched);
+                    _verb_send.process(val, !is_alt_touched);
                     _verb_fb.process(val, is_alt_touched);
                     break;
                 }
