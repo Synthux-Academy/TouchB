@@ -12,6 +12,7 @@
 #include "buffer.h"
 #include "fx.h"
 
+
 namespace synthux {
 namespace touchb {
 
@@ -73,6 +74,8 @@ private:
   bleeptools::XFade _pre_mix;  
   bleeptools::XFade _post_mix;  
   bleeptools::XFade _reverb_send;
+  
+  bleeptools::PeakFollower _reverb_absorber;
 
   bleeptools::RandomImpulse _rnd_imp;
   bleeptools::OnePoleSmoother _smooth;
@@ -94,6 +97,8 @@ private:
 
   float _tape_mod;
   float _fltr_freq;
+
+  float _rev_fb;
 
   PlayDirection _direction;
   int8_t _behavior_ptr;

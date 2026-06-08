@@ -9,6 +9,7 @@
 #include "time.interval.h"
 
 #include "smooth.h"
+#include "peak.follower.h"
 
 #include "synclock.h"
 #include "random.impulse.h"
