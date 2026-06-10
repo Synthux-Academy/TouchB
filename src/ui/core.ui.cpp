@@ -155,9 +155,6 @@ void CoreUI::_on_pad_touch(Pads::Pad pad)
         case Pads::Tou:
         case Pads::Ch: break;
         default: {
-            if (_is_latched && pad != _latched_pad) {
-                _release_latched();
-            }
             _latched_pad = pad;
             _core.add_behavior(pad - 3);     
         }

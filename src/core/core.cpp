@@ -158,13 +158,11 @@ void Core::_trigger_vox(const uint8_t idx)
 void Core::add_behavior(const uint8_t idx)
 {
     if (idx >= 7) return;
-    for (auto b: _behavior) {
-        if (b == idx) return;
-    }
-
-    _behavior[++_behavior_ptr] = idx;
+    auto has_behavior = _has_behavior();
+    _behavior_ptr = 0;
+    _behavior[_behavior_ptr] = idx;
     _apply_behavior();
-    if (_behavior_ptr == 0) {
+    if (!has_behavior) {
         _trigger_vox();
         _in_buf_switch.set_on(true);
         _rec_cued = true;

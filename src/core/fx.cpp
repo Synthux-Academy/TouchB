@@ -33,7 +33,7 @@ void Fx::process(float& inout0, float& inout1)
     // Reduce
     _reduce_on.process();
     if (!_reduce_on.is_idle()) {
-        for (i = 0; i < 2; i++) out[i] = _decimator[i].Process(out[i]);
+        for (i = 0; i < 2; i++) out[i] = _decimator[i].Process(out[i]) * _reduce_comp;
     }
     
     inout0 = out[0];
@@ -42,27 +42,29 @@ void Fx::process(float& inout0, float& inout1)
 
 void Fx::engage(const Params p)
 {   
-    for (uint8_t i = 0; i < p.type_count; i++) {
-        auto t = p.types[i];
-        switch (t) {
-            case Type::drive: {
-                _drive_on.set_on(true);
-                for (auto& d: _drive) d.SetDrive(p.drive);
-                _drive_comp = dbfs2lin(p.vol_comp_dbfs);
-                break;
+    _drive_on.set_on(false);
+    _reduce_on.set_on(false);
+    auto t = p.types.front();
+    switch (t) {
+        case Type::drive: {
+            _drive_on.set_on(true);
+            _drive_comp = dbfs2lin(p.drive_vol_comp_dbfs);
+            for (auto& d: _drive) d.SetDrive(p.drive);
+            break;
+        }
+        case Type::reduce: {
+            _reduce_on.set_on(true);
+            _reduce_comp = dbfs2lin(p.drive_vol_comp_dbfs);
+            for (auto& d: _decimator) {
+                d.SetBitsToCrush(p.bits);
+                d.SetDownsampleFactor(p.downsample);
             }
-            case Type::reduce: {
-                _reduce_on.set_on(true);
-                for (auto& d: _decimator) {
-                    d.SetBitsToCrush(p.bits);
-                    d.SetDownsampleFactor(p.downsample);
-                }
-                break;
+            break;
 
-            default: break;
-            }
+        default: break;
         }
     }
+    
 }
 
 void Fx::disengage()

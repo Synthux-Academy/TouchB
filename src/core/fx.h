@@ -13,7 +13,8 @@ public:
     enum Type: uint8_t {
         drive,
         reduce,
-        Count
+        Count,
+        None = 0xff
     };
 
     struct Params {
@@ -22,12 +23,14 @@ public:
 
         //Drive
         float drive;
+        float drive_vol_comp_dbfs;
 
         //Reduce
         float downsample;
         uint8_t bits;        
+        float reduce_vol_comp_dbfs;
 
-        float vol_comp_dbfs;
+        
     };
 
     Fx() = default;
@@ -49,6 +52,7 @@ private:
     bleeptools::SoftSwitch _reduce_on;
 
     float _drive_comp;
+    float _reduce_comp;
 };
 
 };
