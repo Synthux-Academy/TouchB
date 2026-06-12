@@ -30,19 +30,19 @@ namespace touchb {
             case 0: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
                 vp.fx.drive = 0.53;
-                vp.fx.drive_vol_comp_dbfs = -18;
+                // vp.fx.drive_vol_comp_dbfs = -18;
                 break;
             }
             case 1: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
                 vp.fx.drive = 0.47;
-                vp.fx.drive_vol_comp_dbfs = -16;
+                // vp.fx.drive_vol_comp_dbfs = -16;
                 break;
             }
             case 5: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
                 vp.fx.drive = 0.7;
-                vp.fx.drive_vol_comp_dbfs = -25;
+                // vp.fx.drive_vol_comp_dbfs = -25;
                 break;
             }
             case 2: {
@@ -53,14 +53,14 @@ namespace touchb {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
                 vp.fx.bits = 10;
                 vp.fx.downsample = 0.3;
-                vp.fx.reduce_vol_comp_dbfs = 1.5;
+                // vp.fx.reduce_vol_comp_dbfs = 1.5;
                 break;
             }
             case 4: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
                 vp.fx.bits = 12;
                 vp.fx.downsample = 0.2;
-                vp.fx.reduce_vol_comp_dbfs = -2;
+                // vp.fx.reduce_vol_comp_dbfs = -2;
                 break;
             }
             case 6: {

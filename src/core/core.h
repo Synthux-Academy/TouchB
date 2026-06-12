@@ -83,6 +83,9 @@ private:
   bleeptools::OnePoleSmoother _smooth;
   std::array<daisysp::Svf, 2>  _tape_filter;
 
+  bleeptools::RMSGain _gain;
+  std::array<daisysp::Limiter, 2>  _limiter;
+
   std::array<daisysp::Svf, 2>  _filter;
   daisysp::ReverbSc* _reverb;
 

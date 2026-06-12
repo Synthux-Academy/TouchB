@@ -10,6 +10,7 @@
 
 #include "smooth.h"
 #include "peak.follower.h"
+#include "rms.gain.h"
 
 #include "synclock.h"
 #include "random.impulse.h"

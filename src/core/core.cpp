@@ -59,6 +59,10 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
     _reverb->SetFeedback(kReverbFeedback);
     _reverb->SetLpFreq(kReverLPFreq);
 
+    // Gain
+    _gain.init(sample_rate);
+    for (auto& l: _limiter) l.Init();
+
     // Controls
     set_start(0.f);
     set_size(1.f);
@@ -136,9 +140,10 @@ void Core::process(const float* const* in, float** out, size_t size)
             _post_fx_mix.process(_in_buf_mix_bus[0], _in_buf_mix_bus[1], _bus[0], _bus[1], _bus[0], _bus[1]);
         }
 
-        out[0][i] = SoftLimit(_bus[0]);
-        out[1][i] = SoftLimit(_bus[1]);
+        _gain.process(_bus[0], _bus[0], out[0][i], out[1][i]);
     }
+    
+    for (auto i = 0; i < 2; i++) _limiter[i].ProcessBlock(out[i], size, 0);
 };
 
 void Core::_trigger_vox(const uint8_t idx)
