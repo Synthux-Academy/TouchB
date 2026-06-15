@@ -71,11 +71,17 @@ void Fx::_validate()
 
 void Fx::engage(const Params p)
 {   
-    _drive_amnt = p.drive;
-    _downsample_amnt = p.downsample;
-    _bits_reduce_amnt = p.bits;
+    if (p.type_count > 0) {
+        _drive_amnt = p.drive;
+        _downsample_amnt = p.downsample;
+        _bits_reduce_amnt = p.bits;
+        _bypass.set_on(false);
+    }
+    else {
+        _bypass.set_on(true);
+    }
     _validate();
-    _bypass.set_on(p.type_count == 0);
+    
 }
 
 void Fx::disengage()

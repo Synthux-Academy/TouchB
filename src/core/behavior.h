@@ -51,10 +51,7 @@ namespace touchb {
                 break;
             }
             case 2: {
-                // Actually will be bypassed because no types specified
-                vp.fx.drive = 0.5;
-                vp.fx.downsample = 0.5;
-                vp.fx.bits = 4;
+                //bypass
                 break;
             }
             case 3: {
