@@ -109,6 +109,9 @@ void CoreUI::_process_ui_queue()
         
         _apply.set(Knobs::s31);
         _fltr_val.set(knobs.GetPotValue(Knobs::s31));
+
+        _core.set_mix(knobs.GetPotValue(Knobs::s36));
+
         _is_init = true;
     }
 

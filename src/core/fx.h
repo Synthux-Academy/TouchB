@@ -23,21 +23,19 @@ public:
 
         //Drive
         float drive;
-        float drive_vol_comp_dbfs;
 
         //Reduce
         float downsample;
-        uint8_t bits;        
-        float reduce_vol_comp_dbfs;
-
-        
+        uint8_t bits;
     };
 
-    Fx() = default;
+    Fx();
     ~Fx() = default;
 
     void init(const float sample_rate);
     void process(float& inout0, float& inout1);
+
+    void set_flavor_norm(const float);
 
     void engage(const Params);
     void disengage();
@@ -45,14 +43,21 @@ public:
 private:
     NOCOPY(Fx)
 
+    void _validate();
+
     std::array<daisysp::Overdrive, 2> _drive;
     std::array<daisysp::Decimator, 2> _decimator;
 
-    bleeptools::SoftSwitch _drive_on;
-    bleeptools::SoftSwitch _reduce_on;
+    bleeptools::RMSGain _drive_gain;
+    bleeptools::RMSGain _reduce_gain;
 
-    float _drive_comp;
-    float _reduce_comp;
+    bleeptools::SoftSwitch _bypass;
+
+    float _flavor;
+    float _drive_amnt;
+    float _downsample_amnt;
+    uint8_t _bits_reduce_amnt;
+    
 };
 
 };

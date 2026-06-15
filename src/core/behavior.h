@@ -30,43 +30,55 @@ namespace touchb {
             case 0: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
                 vp.fx.drive = 0.53;
-                // vp.fx.drive_vol_comp_dbfs = -18;
+                vp.fx.bits = 4;
+                vp.fx.downsample = 0.3;
                 break;
             }
             case 1: {
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
                 vp.fx.drive = 0.47;
-                // vp.fx.drive_vol_comp_dbfs = -16;
+                vp.fx.bits = 4;
+                vp.fx.downsample = 0.3;
                 break;
             }
             case 5: {
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
                 vp.fx.drive = 0.7;
-                // vp.fx.drive_vol_comp_dbfs = -25;
+                vp.fx.bits = 10;
+                vp.fx.downsample = 0.6;
                 break;
             }
             case 2: {
-                //CLEAN
+                // Actually will be bypassed because no types specified
+                vp.fx.drive = 0.5;
+                vp.fx.downsample = 0.5;
+                vp.fx.bits = 4;
                 break;
             }
             case 3: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
                 vp.fx.bits = 10;
                 vp.fx.downsample = 0.3;
-                // vp.fx.reduce_vol_comp_dbfs = 1.5;
+                vp.fx.drive = 0.5;
                 break;
             }
             case 4: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
+                vp.fx.drive = 0.5;
                 vp.fx.bits = 12;
                 vp.fx.downsample = 0.2;
-                // vp.fx.reduce_vol_comp_dbfs = -2;
                 break;
             }
             case 6: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
                 vp.fx.bits = 10;
                 vp.fx.downsample = 0.4;
+                vp.fx.drive = 0.7;
                 break;
             }
         }

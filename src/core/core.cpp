@@ -59,8 +59,7 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
     _reverb->SetFeedback(kReverbFeedback);
     _reverb->SetLpFreq(kReverLPFreq);
 
-    // Gain
-    _gain.init(sample_rate);
+    // Limiter
     for (auto& l: _limiter) l.Init();
 
     // Controls
@@ -74,23 +73,27 @@ void Core::process(const float* const* in, float** out, size_t size)
 {
     float in0, in1;
     for (size_t i = 0; i < size; i++) {
+
+        // Tape flutter
         auto flutter = _rnd_imp.process() * _tape_mod;
         auto smooth_tape = _smooth.process(std::abs(flutter));
         volatile auto tape_freq = 16000.f * (1.f - std::clamp(8.f * smooth_tape, .0f, 8.f));
         auto target = _target_increment * (1.f + flutter);
         auto set_increment = false;
         if (std::fabs(target  - _increment) > .002f) {
-            _increment += (target - _increment) * 0.002083333333f; //20ms    0.0002083333333f; //100ms
+            _increment += (target - _increment) * 0.002083333333f; //20ms
             set_increment = true;
         }
         else {
             _increment = target;
         }
 
+        //Write
         in0 = in[0][i] * _in_mult;
         in1 = in[1][i] * _in_mult;
-
         _buffer.write(in0, in1);
+
+        // Read
         _bus.fill(0);
         auto vout0 = 0.f, vout1 = 0.f;
         for (auto& v: _vox) {
@@ -112,12 +115,14 @@ void Core::process(const float* const* in, float** out, size_t size)
                 }
             }
         }
-        
-        _in_buf_mix.set_stage(_in_buf_switch.process());
-        _in_buf_mix.process(in0, in1, _bus[0], _bus[1], _in_buf_mix_bus[0], _in_buf_mix_bus[1]);
 
-        _pre_fx_mix.process(_in_buf_mix_bus[0], _in_buf_mix_bus[1], _bus[0], _bus[1], _bus[0], _bus[1]);
+        auto wet = _in_buf_switch.process();
 
+        // Pre-mix
+        _pre_mix.set_stage(wet);
+        _pre_mix.process(in0, in1, _bus[0], _bus[1], _bus[0], _bus[1]);
+
+        // Filter
         for (auto k = 0; k < 2; k++) {
             if (_tape_mod > 0) {
                 _tape_filter[k].SetFreq(tape_freq);
@@ -129,21 +134,21 @@ void Core::process(const float* const* in, float** out, size_t size)
             _bus[k] = _fltr_lp ? _filter[k].Low() : _filter[k].High();
         }
 
+        // Distort
         _fx.process(_bus[0], _bus[1]);
 
+        // Reverb
         _reverb_send.process(0, 0, _bus[0], _bus[1], _reverb_in[0], _reverb_in[1]);
         _reverb->Process(_reverb_in[0], _reverb_in[1], &(_reverb_out[0]), &(_reverb_out[1]));        
         _bus[0] = (_bus[0] + _reverb_out[0]) * .75f;
         _bus[1] = (_bus[1] + _reverb_out[1]) * .75f;
         
-        if (!_has_behavior()) {
-            _post_fx_mix.process(_in_buf_mix_bus[0], _in_buf_mix_bus[1], _bus[0], _bus[1], _bus[0], _bus[1]);
-        }
-
-        _gain.process(_bus[0], _bus[0], out[0][i], out[1][i]);
+        // Post-mix
+        _post_mix.set_stage(wet);
+        _post_mix.process(in0, in1, _bus[0], _bus[1], out[0][i], out[1][i]);
     }
     
-    for (auto i = 0; i < 2; i++) _limiter[i].ProcessBlock(out[i], size, 0);
+    for (auto i = 0; i < 2; i++) _limiter[i].ProcessBlock(out[i], size, 1);
 };
 
 void Core::_trigger_vox(const uint8_t idx)
@@ -236,8 +241,7 @@ void Core::_set_size()
 
 void Core::set_mix(const float norm)
 {
-    _pre_fx_mix.set_stage(norm);
-    _post_fx_mix.set_stage(1.f - norm);
+    _fx.set_flavor_norm(norm);
 }
 
 float mapped_speed(const float val) 

@@ -10,7 +10,7 @@ public:
     ~RMSGain() = default;
 
     void init(const float sample_rate);
-    float process(const float in0, const float in1, float& out0, float& out1);
+    void process(float& inout0, float& inout1);
 
 private:
     NOCOPY(RMSGain)

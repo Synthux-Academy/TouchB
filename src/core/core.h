@@ -64,7 +64,6 @@ private:
 
   std::array<float, 2> _reverb_in;
   std::array<float, 2> _reverb_out;
-  std::array<float, 2> _in_buf_mix_bus;
   std::array<float, 2> _bus;
 
   Fx _fx;
@@ -74,16 +73,14 @@ private:
   std::array<uint8_t, 7> _behavior;
   Buffer _buffer;
   bleeptools::SoftSwitch _in_buf_switch;
-  bleeptools::XFade _in_buf_mix;
-  bleeptools::XFade _pre_fx_mix;
-  bleeptools::XFade _post_fx_mix;  
+  bleeptools::XFade _pre_mix;
+  bleeptools::XFade _post_mix;
   bleeptools::XFade _reverb_send;
 
   bleeptools::RandomImpulse _rnd_imp;
   bleeptools::OnePoleSmoother _smooth;
   std::array<daisysp::Svf, 2>  _tape_filter;
 
-  bleeptools::RMSGain _gain;
   std::array<daisysp::Limiter, 2>  _limiter;
 
   std::array<daisysp::Svf, 2>  _filter;
