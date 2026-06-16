@@ -8,7 +8,7 @@
 namespace synthux {
 namespace touchb {
 
-class Fx {
+class Distortion {
 public:
     enum Type: uint8_t {
         drive,
@@ -29,8 +29,8 @@ public:
         uint8_t bits;
     };
 
-    Fx();
-    ~Fx() = default;
+    Distortion();
+    ~Distortion() = default;
 
     void init(const float sample_rate);
     void process(float& inout0, float& inout1);
@@ -41,7 +41,7 @@ public:
     void disengage();
     
 private:
-    NOCOPY(Fx)
+    NOCOPY(Distortion)
 
     void _validate();
 

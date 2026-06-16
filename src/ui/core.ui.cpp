@@ -8,8 +8,6 @@ using namespace synthux::touchb;
 using namespace daisy;
 using namespace daisysp;
 
-
-
 static constexpr std::array<float, 7> kSpeedSteps = { 
     .125f,          // -24
     .25f,           // -12
@@ -53,7 +51,10 @@ void CoreUI::init()
     _inp_val.set(1.f);
 
     _verb_send.set(0.f);
-    _verb_fb.set(.7f);
+    _verb_fb.set(.8f);
+
+    _blur.set(0.f);
+    _flutter.set(0.f);
 };
 
 void CoreUI::process() 
@@ -81,18 +82,24 @@ void CoreUI::process()
     }
     was_env_on = env_on;
     
-    // Direction ///////////////////////
+    // Direction .....................................
     auto switch_b = _touch.switches().B();
     _core.set_play_direction(static_cast<Core::PlayDirection>(switch_b));
 
-    // Filter
-    if (_apply.test(Knobs::s31)) {
+    // Modulation ....................................
+    if (_apply.test(Knobs::s33)) {
+        _core.set_blur(_blur.value());
+        _core.set_flutter(_flutter.value());
+    }
+
+    // Filter ........................................
+    if (_apply.test(Knobs::s37)) {
         _core.set_filter(_fltr_val.value());
         _core.set_input_level(_inp_val.value());
     }
 
-    //Reverb
-    if (_apply.test(Knobs::s30)) {
+    //Reverb .........................................
+    if (_apply.test(Knobs::s34)) {
         _core.set_reverb_send(_verb_send.value());
         _core.set_reverb_fb(_verb_fb.value());
     }
@@ -102,23 +109,23 @@ void CoreUI::process()
 
 void CoreUI::_process_ui_queue()
 {
+    // Init mvalues from knobs ......................
     if (!_is_init && _init_timer.HasPassedMs(100)) {
         auto& knobs = _touch.knobs();
-        _apply.set(Knobs::s30);
-        _verb_send.set(knobs.GetPotValue(Knobs::s30));
-        
-        _apply.set(Knobs::s31);
-        _fltr_val.set(knobs.GetPotValue(Knobs::s31));
+        _apply.set(Knobs::s33);
+        _blur.set(knobs.GetPotValue(Knobs::s33));
+            
+        _apply.set(Knobs::s34);
+        _verb_send.set(knobs.GetPotValue(Knobs::s34));
 
-        _core.set_mix(knobs.GetPotValue(Knobs::s36));
+        _apply.set(Knobs::s37);
+        _fltr_val.set(knobs.GetPotValue(Knobs::s37));
 
         _is_init = true;
     }
 
-    _pot_monitor.Process();
-    
     auto is_alt_touched = _touched.test(Pads::Tou) || _touched.test(Pads::Ch);
-
+    _pot_monitor.Process();
     while(!_ui_queue.IsQueueEmpty()) {
         auto event = _ui_queue.GetAndRemoveNextEvent();
         if (event.type == UiEventQueue::Event::EventType::potMoved) {
@@ -127,22 +134,41 @@ void CoreUI::_process_ui_queue()
             val = infrasonic::map(val, .02f, .95f, 0.f, 1.f);
             _apply.set(id);
             switch (id) {
-                case Knobs::s30: {
+                case Knobs::s30: 
+                    _core.set_size(val);
+                    break;
+
+                case Knobs::s31: 
+                    _core.set_start(val);
+                    break;
+
+                case Knobs::s32: 
+                    _core.set_pitch(snapped_speed(val)); 
+                    break;
+
+                case Knobs::s33: {
+                    _blur.process(val, !is_alt_touched);
+                    _flutter.process(val, is_alt_touched);
+                    break;
+                }
+                case Knobs::s34: {
                     _verb_send.process(val, !is_alt_touched);
                     _verb_fb.process(val, is_alt_touched);
                     break;
                 }
-                case Knobs::s31: {
+                case Knobs::s35:
+                    _core.set_mix(val);
+                    break;
+
+                case Knobs::s36:
+                    _core.set_distortion_flavor(val);
+                    break;
+
+                case Knobs::s37: {
                     _fltr_val.process(val, !is_alt_touched);
                     _inp_val.process(val, is_alt_touched);
                     break;
-                }    
-                case Knobs::s32: _core.set_pitch(snapped_speed(val)); break;
-                case Knobs::s33: _core.set_tape_mod(val);   break;
-                case Knobs::s34: _core.set_blur(val);       break;
-                case Knobs::s35: _core.set_size(val);       break;
-                case Knobs::s36: _core.set_mix(val);        break;
-                case Knobs::s37: _core.set_start(val);      break;
+                }
             }
         }
     }

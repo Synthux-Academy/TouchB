@@ -1,4 +1,4 @@
-#include "fx.h"
+#include "distortion.h"
 #include "common/common.h"
 
 using namespace synthux::touchb;
@@ -7,13 +7,13 @@ using namespace infrasonic;
 
 const auto comp = dbfs2lin(-10);
 
-Fx::Fx():
+Distortion::Distortion():
 _drive_amnt         { .5f },
 _downsample_amnt    { .5f },
 _bits_reduce_amnt   { 4 }
 {}
 
-void Fx::init(const float sample_rate)
+void Distortion::init(const float sample_rate)
 {
     //On/Off
     _bypass.init(sample_rate);
@@ -32,13 +32,13 @@ void Fx::init(const float sample_rate)
     _reduce_gain.init(sample_rate);
 }
 
-void Fx::set_flavor_norm(const float norm)
+void Distortion::set_flavor_norm(const float norm)
 {
     _flavor = norm;
     _validate();
 }
 
-void Fx::process(float& inout0, float& inout1)
+void Distortion::process(float& inout0, float& inout1)
 {
     float bus[2] = { inout0, inout1 };
     int i;
@@ -57,7 +57,7 @@ void Fx::process(float& inout0, float& inout1)
     inout1 = inout1 * dry + bus[1] * wet;
 }
 
-void Fx::_validate()
+void Distortion::_validate()
 {
     auto drive = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .3f, .9f);
     auto downsample = infrasonic::map(_downsample_amnt * (1.f - _flavor), 0.f, .7f, 0.f, .9f);
@@ -69,7 +69,7 @@ void Fx::_validate()
     }   
 }
 
-void Fx::engage(const Params p)
+void Distortion::engage(const Params p)
 {   
     if (p.type_count > 0) {
         _drive_amnt = p.drive;
@@ -84,7 +84,7 @@ void Fx::engage(const Params p)
     
 }
 
-void Fx::disengage()
+void Distortion::disengage()
 {
     _bypass.set_on(true);
 }

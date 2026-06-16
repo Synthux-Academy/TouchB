@@ -10,45 +10,45 @@ namespace touchb {
         uint8_t lead_ptr;
     };
 
-    enum FXType: uint8_t {
+    enum distortionType: uint8_t {
         drive,
         bitcrusher
     };
 
     struct Behavior {
-        Fx::Params fx;
+        Distortion::Params distortion;
     };
 
     Behavior behavior4combo(Combo c)
     {
         Behavior vp;
         memset(&vp, 0, sizeof(vp));
-        vp.fx.types.fill(Fx::Type::None);
+        vp.distortion.types.fill(Distortion::Type::None);
         
         auto lead = (*c.idxs)[c.lead_ptr];
         switch (lead) {
             case 0: {
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
-                vp.fx.drive = 0.53;
-                vp.fx.bits = 4;
-                vp.fx.downsample = 0.3;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::drive;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
+                vp.distortion.drive = 0.53;
+                vp.distortion.bits = 4;
+                vp.distortion.downsample = 0.3;
                 break;
             }
             case 1: {
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
-                vp.fx.drive = 0.47;
-                vp.fx.bits = 4;
-                vp.fx.downsample = 0.3;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::drive;
+                vp.distortion.drive = 0.47;
+                vp.distortion.bits = 4;
+                vp.distortion.downsample = 0.3;
                 break;
             }
             case 5: {
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
-                vp.fx.drive = 0.7;
-                vp.fx.bits = 10;
-                vp.fx.downsample = 0.6;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::drive;
+                vp.distortion.drive = 0.7;
+                vp.distortion.bits = 10;
+                vp.distortion.downsample = 0.6;
                 break;
             }
             case 2: {
@@ -56,27 +56,27 @@ namespace touchb {
                 break;
             }
             case 3: {
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
-                vp.fx.bits = 10;
-                vp.fx.downsample = 0.3;
-                vp.fx.drive = 0.5;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::drive;
+                vp.distortion.bits = 10;
+                vp.distortion.downsample = 0.3;
+                vp.distortion.drive = 0.5;
                 break;
             }
             case 4: {
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
-                vp.fx.drive = 0.5;
-                vp.fx.bits = 12;
-                vp.fx.downsample = 0.2;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::drive;
+                vp.distortion.drive = 0.5;
+                vp.distortion.bits = 12;
+                vp.distortion.downsample = 0.2;
                 break;
             }
             case 6: {
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
-                vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
-                vp.fx.bits = 10;
-                vp.fx.downsample = 0.4;
-                vp.fx.drive = 0.7;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::drive;
+                vp.distortion.bits = 10;
+                vp.distortion.downsample = 0.4;
+                vp.distortion.drive = 0.7;
                 break;
             }
         }

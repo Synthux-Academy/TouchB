@@ -34,6 +34,9 @@ private:
     MValue _verb_send;
     MValue _verb_fb;
 
+    MValue _blur;
+    MValue _flutter;
+
     std::bitset<Knobs::Count> _apply;
 
     daisy::UiEventQueue _ui_queue;

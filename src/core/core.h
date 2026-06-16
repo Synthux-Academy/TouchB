@@ -11,8 +11,7 @@
 #include "config.h"
 #include "vox.h"
 #include "buffer.h"
-#include "fx.h"
-
+#include "distortion.h"
 
 namespace synthux {
 namespace touchb {
@@ -35,16 +34,22 @@ public:
   void add_behavior(const uint8_t idx);
   void remove_behavior(const uint8_t idx);
 
-  void set_mix(const float);
+  
+
   void set_start(const float);
   void set_size(const float);
+  void set_pitch(const float);
+
+  void set_distortion_flavor(const float);
   void set_filter(const float);
+
   void set_reverb_send(const float);
   void set_reverb_fb(const float);
-  void set_pitch(const float);
+  
   void set_blur(const float);
-
-  void set_tape_mod(const float);
+  void set_flutter(const float);
+  
+  void set_mix(const float);
 
   void set_input_level(const float);
 
@@ -65,27 +70,33 @@ private:
 
   std::array<float, 2> _reverb_in;
   std::array<float, 2> _reverb_out;
-  std::array<float, 2> _bus;
-
-  Fx _fx;
+  
+  std::array<float, 2> _in_bus;
+  std::array<float, 2> _loop_bus;
+  std::array<float, 2> _mix_bus;
 
   std::array<Vox, kVoxCount> _vox;
   std::bitset<kVoxCount> _is_active;
   std::array<uint8_t, 7> _behavior;
   Buffer _buffer;
-  SoftSwitch _in_buf_switch;
-  XFade _pre_mix;
-  XFade _post_mix;
+
+  SoftSwitch _dist_feed_switch;
+  SoftSwitch _in_loop_switch;
+  XFade _in_loop_mix;
+  XFade _dist_feed_mix;
+  XFade _dry_wet_mix;
   XFade _reverb_send;
   
   OnePoleSmoother _smooth;
   bleeptools::RandomImpulse _rnd_imp;
   std::array<daisysp::Svf, 2>  _tape_filter;
+  std::array<daisysp::Svf, 2>  _in_filter;
+  std::array<daisysp::Svf, 2>  _loop_filter;
+  
+  Distortion _distortion;
 
-  std::array<daisysp::Limiter, 2>  _limiter;
-
-  std::array<daisysp::Svf, 2>  _filter;
   daisysp::ReverbSc* _reverb;
+  std::array<daisysp::Limiter, 2>  _limiter;
 
   std::default_random_engine _rand;
   std::normal_distribution<float> _dice;
@@ -98,7 +109,8 @@ private:
 
   float _in_mult;
 
-  float _tape_mod;
+  float _flutter;
+
   float _fltr_freq;
 
   float _rev_fb;
