@@ -2,7 +2,7 @@
 
 #include "nocopy.h"
 
-namespace bleeptools {
+namespace synthux {
     
 class RMSGain {
 public:

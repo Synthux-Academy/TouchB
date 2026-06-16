@@ -4,6 +4,7 @@
 #include <random>
 #include <daisysp.h>
 
+#include "synthux.h"
 #include "bleeptools.h"
 #include "sdram_alloc.h"
 #include "nocopy.h"
@@ -72,13 +73,13 @@ private:
   std::bitset<kVoxCount> _is_active;
   std::array<uint8_t, 7> _behavior;
   Buffer _buffer;
-  bleeptools::SoftSwitch _in_buf_switch;
-  bleeptools::XFade _pre_mix;
-  bleeptools::XFade _post_mix;
-  bleeptools::XFade _reverb_send;
-
+  SoftSwitch _in_buf_switch;
+  XFade _pre_mix;
+  XFade _post_mix;
+  XFade _reverb_send;
+  
+  OnePoleSmoother _smooth;
   bleeptools::RandomImpulse _rnd_imp;
-  bleeptools::OnePoleSmoother _smooth;
   std::array<daisysp::Svf, 2>  _tape_filter;
 
   std::array<daisysp::Limiter, 2>  _limiter;

@@ -1,6 +1,6 @@
 #include "peak.follower.h"
 
-using namespace bleeptools;
+using namespace synthux;
 
 
 PeakFollower::PeakFollower():

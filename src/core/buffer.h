@@ -59,7 +59,7 @@ private:
         fadeout
     };
 
-    bleeptools::SoftSwitch _cut_switch;
+    SoftSwitch _cut_switch;
 
     Frame*  _buffer;
     size_t  _buffer_size;

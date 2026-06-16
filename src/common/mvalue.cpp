@@ -1,7 +1,7 @@
 #include "mvalue.h"
 #include <math.h>
 
-using namespace bleeptools;
+using namespace synthux;
 
 MValue::MValue():
 _in_value     { 0.1f },

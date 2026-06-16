@@ -28,11 +28,11 @@ private:
     Touch& _touch;
     Core& _core;
 
-    bleeptools::MValue _fltr_val;
-    bleeptools::MValue _inp_val;
+    MValue _fltr_val;
+    MValue _inp_val;
 
-    bleeptools::MValue _verb_send;
-    bleeptools::MValue _verb_fb;
+    MValue _verb_send;
+    MValue _verb_fb;
 
     std::bitset<Knobs::Count> _apply;
 

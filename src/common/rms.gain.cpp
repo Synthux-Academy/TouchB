@@ -1,7 +1,7 @@
 #include "rms.gain.h"
 #include <arm_math.h>
 
-using namespace bleeptools;
+using namespace synthux;
     
 RMSGain::RMSGain():
 _rms    { 0.f },
@@ -22,7 +22,7 @@ void RMSGain::process(float& inout0, float& inout1) {
 
     auto rms_sq = _rms * _rms;
     auto kof = (power > rms_sq) ? _attack_kof : _release_kof;
-    arm_sqrt_f32(kof * rms_sq + (1.f - kof) * power, &_rms);
+    _rms = sqrtf(kof * rms_sq + (1.f - kof) * power);
 
     auto target_gain = (_rms > 1e-6f) ? kTargetRMS / _rms : 1.f;
     _gain += .001f * (target_gain - _gain);

@@ -26,7 +26,7 @@
 #include <algorithm>
 #include "nocopy.h"
 
-namespace bleeptools {
+namespace synthux {
 
 // The square law crossfade
 // Adopted from Will. C. Pirkle "Designing Software Synthesizer Plugins in C++".

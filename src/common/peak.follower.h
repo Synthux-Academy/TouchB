@@ -4,7 +4,7 @@
 #include "smooth.h"
 #include "nocopy.h"
 
-namespace bleeptools {
+namespace synthux {
 
 class PeakFollower {
 public:

@@ -2,7 +2,7 @@
 
 #include <daisysp.h>
 
-#include "bleeptools.h"
+#include "synthux.h"
 #include "nocopy.h"
 
 namespace synthux {
@@ -48,10 +48,10 @@ private:
     std::array<daisysp::Overdrive, 2> _drive;
     std::array<daisysp::Decimator, 2> _decimator;
 
-    bleeptools::RMSGain _drive_gain;
-    bleeptools::RMSGain _reduce_gain;
+    RMSGain _drive_gain;
+    RMSGain _reduce_gain;
 
-    bleeptools::SoftSwitch _bypass;
+    SoftSwitch _bypass;
 
     float _flavor;
     float _drive_amnt;
