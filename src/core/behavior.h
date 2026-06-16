@@ -29,6 +29,7 @@ namespace touchb {
         switch (lead) {
             case 0: {
                 vp.fx.types[vp.fx.type_count++] = Fx::Type::drive;
+                vp.fx.types[vp.fx.type_count++] = Fx::Type::reduce;
                 vp.fx.drive = 0.53;
                 vp.fx.bits = 4;
                 vp.fx.downsample = 0.3;
