@@ -4,6 +4,7 @@
 
 #include "synthux.h"
 #include "nocopy.h"
+#include "folder.h"
 
 namespace synthux {
 namespace touchb {
@@ -47,6 +48,7 @@ private:
 
     std::array<daisysp::Overdrive, 2> _drive;
     std::array<daisysp::Decimator, 2> _decimator;
+    std::array<synthux::Folder, 2> _folder;
 
     RMSGain _drive_gain;
     RMSGain _reduce_gain;

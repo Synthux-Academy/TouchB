@@ -38,12 +38,21 @@ void Distortion::set_flavor_norm(const float norm)
     _validate();
 }
 
+/* Signal path .....................................
+
+      |-- _drive -- _drive_gain ----|
+in >--|                             d/f-- _reduce -- _reduce_gain --> out
+      |-- _folder -- _folder_gain --|
+
+*/
+
 void Distortion::process(float& inout0, float& inout1)
 {
     float bus[2] = { inout0, inout1 };
     int i;
     // Drive
-    for (i = 0; i < 2; i++) bus[i] = _drive[i].Process(bus[i]);
+    // for (i = 0; i < 2; i++) bus[i] = _drive[i].Process(bus[i]);
+    for (i = 0; i < 2; i++) _folder[i].process(bus[i]);
     _drive_gain.process(bus[0], bus[1]);
     
     // Reduce
@@ -59,10 +68,15 @@ void Distortion::process(float& inout0, float& inout1)
 
 void Distortion::_validate()
 {
+    auto threshold = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .5f, .01f);
+    auto gain = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, 1.f, 5.f);
     auto drive = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .3f, .9f);
     auto downsample = infrasonic::map(_downsample_amnt * (1.f - _flavor), 0.f, .7f, 0.f, .9f);
     auto bits_to_crush = std::round(_bits_reduce_amnt * (1.f - _flavor));
     for (auto i = 0; i < 2; i++) {
+        _folder[i].set_gain_mult(gain);
+        _folder[i].set_threshold_norm(threshold);
+
         _drive[i].SetDrive(drive);
         _decimator[i].SetBitsToCrush(bits_to_crush);
         _decimator[i].SetDownsampleFactor(downsample);
