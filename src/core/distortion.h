@@ -11,15 +11,16 @@ namespace touchb {
 
 class Distortion {
 public:
-    enum Type: uint8_t {
+    enum class Type: uint8_t {
+        fold,
         drive,
         reduce,
         Count,
-        None = 0xff
+        None
     };
 
     struct Params {
-        std::array<Type, Type::Count> types;    
+        std::array<Type, (size_t)Type::Count> types;    
         uint8_t type_count;
 
         //Drive
@@ -48,18 +49,19 @@ private:
 
     std::array<daisysp::Overdrive, 2> _drive;
     std::array<daisysp::Decimator, 2> _decimator;
-    std::array<synthux::Folder, 2> _folder;
+    std::array<synthux::Folder, 2> _fold;
 
     RMSGain _drive_gain;
+    RMSGain _fold_gain;
     RMSGain _reduce_gain;
-
+    
+    SoftSwitch _drive_fold_switch;
     SoftSwitch _bypass;
 
     float _flavor;
     float _drive_amnt;
     float _downsample_amnt;
     uint8_t _bits_reduce_amnt;
-    
 };
 
 };
