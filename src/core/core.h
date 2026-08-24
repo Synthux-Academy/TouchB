@@ -87,13 +87,14 @@ private:
   XFade _dry_wet_mix;
   XFade _reverb_send;
   
-  OnePoleSmoother _smooth;
+  OnePoleSmoother _tape_smooth;
   bleeptools::RandomImpulse _rnd_imp;
   std::array<daisysp::Svf, 2>  _tape_filter;
   std::array<daisysp::Svf, 2>  _in_filter;
   std::array<daisysp::Svf, 2>  _loop_filter;
   SoftSwitch _filter_switch;
-  
+  OnePoleSmoother _filter_smooth;
+
   Distortion _distortion;
 
   daisysp::ReverbSc* _reverb;
