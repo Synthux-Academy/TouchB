@@ -23,7 +23,8 @@ void Distortion::init(const float sample_rate)
         d.Init();
     }
     _drive_gain.init(sample_rate);
-    
+    _fold_gain.init(sample_rate);
+
     // Reduce
     for (auto& d: _decimator) {
         d.Init();
