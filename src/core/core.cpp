@@ -79,11 +79,11 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
             is by _dist_feed_mix (l/in on the scheme).
             Note: _dist_feed_mix and _in_loop_mix work in opposite directions.
                  _loop_bus         
-           |-- Loop -- Filter -- l/in --Distort ---|
-           |                      |                |        _mix_bus
-       |---|                      |          _in_loop_mix -- Reverb --|
-       |   |                      |                |                  |
-       |   |---------- Filter ---------------------|                 wet 
+           |-- Loop -- Distort -- l/in -- Filter ---|
+           |                       |                |        _mix_bus
+       |---|                       |          _in_loop_mix -- Reverb --|
+       |   |                       |                |                  |
+       |   |----------- Filter ---------------------|                 wet 
 in >---|         _in_bus                                        _dry_wet_mix --> out
        |                                                             dry 
        |                                                              | 
