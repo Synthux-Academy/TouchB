@@ -92,6 +92,7 @@ private:
   std::array<daisysp::Svf, 2>  _tape_filter;
   std::array<daisysp::Svf, 2>  _in_filter;
   std::array<daisysp::Svf, 2>  _loop_filter;
+  SoftSwitch _filter_switch;
   
   Distortion _distortion;
 
@@ -117,7 +118,6 @@ private:
 
   PlayDirection _direction;
   int8_t _behavior_ptr;
-  bool _fltr_lp;
   bool _fade_in;
   bool _rec_cued;
 };

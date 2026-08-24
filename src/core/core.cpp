@@ -43,6 +43,7 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
 
     _in_loop_switch.init(sample_rate);
     _dist_feed_switch.init(sample_rate);
+    _filter_switch.init(sample_rate);
 
     //Distortion
     _distortion.init(sample_rate);
@@ -140,6 +141,8 @@ void Core::process(const float* const* in, float** out, size_t size)
         }
 
         // Filter
+        auto lpf_mix = _filter_switch.process();
+        auto hpf_mix = std::clamp(1.f - lpf_mix, 0.f, 1.f);
         for (auto k = 0; k < 2; k++) {
             if (_flutter > 0) {
                 _tape_filter[k].SetFreq(tape_freq);
@@ -148,10 +151,10 @@ void Core::process(const float* const* in, float** out, size_t size)
             }
 
             _loop_filter[k].Process(_loop_bus[k]);
-            _loop_bus[k] = _fltr_lp ? _loop_filter[k].Low() : _loop_filter[k].High();
+            _loop_bus[k] = lpf_mix * _loop_filter[k].Low() + hpf_mix * _loop_filter[k].High();
 
             _in_filter[k].Process(_in_bus[k]);
-            _in_bus[k] = _fltr_lp ? _in_filter[k].Low() : _in_filter[k].High();
+            _in_bus[k] = lpf_mix * _in_filter[k].Low() +  hpf_mix * _in_filter[k].High();
         }
 
         // Distort
@@ -315,10 +318,11 @@ void Core::set_reverb_fb(const float norm)
 
 void Core::set_filter(const float norm)
 {
-    _fltr_lp = norm < 0.5;
-    auto val = _fltr_lp ? 2.f * norm : 2.f * (norm - .5f);
+    auto is_lpf = norm < 0.5;
+    _filter_switch.set_on(is_lpf);
+    auto val = is_lpf ? 2.f * norm : 2.f * (norm - .5f);
     auto clamped = infrasonic::unitclamp(val * val);
-    if (_fltr_lp) {
+    if (is_lpf) {
         _fltr_freq = infrasonic::map(clamped, 0.f, 1.f, 500.f, 10000.f);
     }
     else {
