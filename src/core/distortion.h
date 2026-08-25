@@ -39,6 +39,8 @@ public:
 
     void set_flavor_norm(const float);
 
+    void set_level_norm(const float);
+
     void engage(const Params);
     void disengage();
     
@@ -61,6 +63,7 @@ private:
     float _flavor;
     float _drive_amnt;
     float _downsample_amnt;
+    float _level;
     uint8_t _bits_reduce_amnt;
 };
 

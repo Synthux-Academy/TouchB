@@ -348,4 +348,5 @@ void Core::set_input_level(const float norm)
 {
     auto db = infrasonic::map(norm, 0.f, 1.f, -40.f, 0.f);
     _in_mult = infrasonic::dbfs2lin(db);
+    _distortion.set_level_norm(_in_mult);
 }

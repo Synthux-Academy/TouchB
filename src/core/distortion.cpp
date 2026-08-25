@@ -5,7 +5,7 @@ using namespace synthux::touchb;
 using namespace daisysp;
 using namespace infrasonic;
 
-const auto comp = dbfs2lin(-10);
+const auto kLevelCompensation = dbfs2lin(-10);
 
 Distortion::Distortion():
 _drive_amnt         { .5f },
@@ -31,6 +31,11 @@ void Distortion::init(const float sample_rate)
         d.SetSmoothCrushing(false);
     }
     _reduce_gain.init(sample_rate);
+}
+
+void Distortion::set_level_norm(const float norm) 
+{
+    _level = norm;
 }
 
 void Distortion::set_flavor_norm(const float norm)
@@ -80,7 +85,7 @@ void Distortion::process(float& inout0, float& inout1)
     _reduce_gain.process(bus[0], bus[1]);
     
     auto dry = _bypass.process();
-    auto wet = infrasonic::unitclamp(1.f - dry) * comp;
+    auto wet = infrasonic::unitclamp(1.f - dry) * kLevelCompensation * _level;
 
     inout0 = inout0 * dry + bus[0] * wet;
     inout1 = inout1 * dry + bus[1] * wet;
@@ -90,7 +95,7 @@ void Distortion::_validate()
 {
     auto fold_thresh = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .5f, .01f);
     auto fold_gain = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, 1.f, 5.f);
-    auto drive = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .3f, .9f);
+    auto drive = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .25f, .7f);
     auto downsample = infrasonic::map(_downsample_amnt * (1.f - _flavor), 0.f, .7f, 0.f, .9f);
     auto bits_to_crush = std::round(_bits_reduce_amnt * (1.f - _flavor));
     for (auto i = 0; i < 2; i++) {
