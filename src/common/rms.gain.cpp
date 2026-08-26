@@ -24,7 +24,7 @@ void RMSGain::process(float& inout0, float& inout1) {
     auto kof = (power > rms_sq) ? _attack_kof : _release_kof;
     _rms = sqrtf(kof * rms_sq + (1.f - kof) * power);
 
-    auto target_gain = (_rms > 1e-6f) ? kTargetRMS / _rms : 1.f;
+    auto target_gain = (_rms > 1e-3f) ? kTargetRMS / _rms : 1.f;
     _gain += .001f * (target_gain - _gain);
 
     inout0 *= _gain;

@@ -193,7 +193,9 @@ void Core::process(const float* const* in, float** out, size_t size)
     }
     
     // Limiter
-    for (auto i = 0; i < 2; i++) _limiter[i].ProcessBlock(out[i], size, 1);
+    for (auto i = 0; i < 2; i++) {
+        _limiter[i].ProcessBlock(out[i], size, 0.891f); //-1dB pre gain
+    }
 };
 
 void Core::_trigger_vox(const uint8_t idx)
