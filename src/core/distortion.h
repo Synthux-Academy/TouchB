@@ -52,6 +52,7 @@ private:
     std::array<daisysp::Overdrive, 2> _drive;
     std::array<daisysp::Decimator, 2> _decimator;
     std::array<synthux::Folder, 2> _fold;
+    std::array<daisysp::Autowah, 2> _wah;
 
     RMSGain _drive_gain;
     RMSGain _fold_gain;
