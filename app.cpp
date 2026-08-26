@@ -5,9 +5,13 @@
 #include "ui/core.ui.h"
 #include "expose.h"
 
+#if DEBUG
+
 // #define METER
 #ifdef METER
 #include "meter.h"
+#endif
+
 #endif
 
 using namespace daisy;
