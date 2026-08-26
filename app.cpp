@@ -80,27 +80,27 @@ static void AudioCallback(AudioHandle::InputBuffer  in,
 
 void AppImpl::init() 
 {
-    auto sample_rate = 48000;
-    auto block_size = 96;
     _touch.init();
-    _core.init(sample_rate, block_size);
+
+    auto seed = _touch.seed();
+    auto& audio = seed.audio_handle;
+    audio.SetSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
+    audio.SetBlockSize(96);
+
+    _core.init(seed.AudioSampleRate(), seed.AudioCallbackRate());
     _ui.init();
 
-    
-#if DEBUG
-    Log::StartLog(false);
-    _log_timer.Init();
-#endif
+    audio.Start(AudioCallback);
 
     // StartT5Callback(T5Callback, 250);
 
-    auto& audio = _touch.seed().audio_handle;
-    audio.SetSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
-    audio.SetBlockSize(block_size);
-    audio.Start(AudioCallback);
+    #if DEBUG
+    Log::StartLog(false);
+    _log_timer.Init();
+    #endif
 
     #ifdef METER
-    Meter::cpu().load.Init(sample_rate, block_size);
+    Meter::cpu().load.Init(seed.AudioSampleRate(), seed.AudioBlockSize());
     #endif
 }
 

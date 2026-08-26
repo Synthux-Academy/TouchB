@@ -19,7 +19,7 @@ _behavior_ptr       { -1 }
     _behavior.fill(0xff);
 };
   
-void Core::init(const float sample_rate, const float cb_buffer_size) {
+void Core::init(const float sample_rate, const float cb_rate) {
     auto& pool = SDRAMBuffer::pool();
     _buffer.init(pool.sourceBuffer(), pool.sourceBufferSize());
     
@@ -32,15 +32,17 @@ void Core::init(const float sample_rate, const float cb_buffer_size) {
     _buffer.set_recording(true);
 
     // Tape
-    _rnd_imp.init(sample_rate);
+    _rnd_imp.init(cb_rate);
     _rnd_imp.set_freq_hz(4.f);
-    _tape_smooth.init(sample_rate, 0.06f);
+    _tape_smooth.init(cb_rate, 0.06f);
     for (auto& f: _tape_filter) {
         f.Init(sample_rate);
         f.SetDrive(.4f);
         f.SetRes(.2f);
     }
     _filter_smooth.init(sample_rate, 0.004f);
+    
+    _filter_smooth.init(cb_rate, 0.004f);
 
     _in_loop_switch.init(sample_rate);
     _dist_feed_switch.init(sample_rate);
@@ -92,6 +94,21 @@ in >---|         _in_bus                                        _dry_wet_mix -->
 */
 void Core::process(const float* const* in, float** out, size_t size) 
 {
+    /* Smooth filters ----------------------------------------- */
+    auto fltr_freq = _filter_smooth.process(_fltr_freq);
+    
+    auto flutter = _rnd_imp.process() * _flutter;
+    auto smooth_tape = _tape_smooth.process(std::abs(flutter));
+    auto tape_freq = 16000.f * (1.f - std::clamp(8.f * smooth_tape, .0f, 8.f));
+
+    for (auto i = 0; i < 2; i++) {
+        _loop_filter[i].SetFreq(fltr_freq);
+        _in_filter[i].SetFreq(fltr_freq);
+        _tape_filter[i].SetFreq(tape_freq);
+    }
+
+    /* Process -------------------------------------------------*/
+
     float in0, in1;
     for (size_t i = 0; i < size; i++) {
         //Write
@@ -105,10 +122,7 @@ void Core::process(const float* const* in, float** out, size_t size)
         _loop_bus.fill(0);
         _mix_bus.fill(0);
         
-        // Tape flutter
-        auto flutter = _rnd_imp.process() * _flutter;
-        auto smooth_tape = _tape_smooth.process(std::abs(flutter));
-        volatile auto tape_freq = 16000.f * (1.f - std::clamp(8.f * smooth_tape, .0f, 8.f));
+        // Tape pitch
         auto target = _target_increment * (1.f + flutter);
         auto set_increment = false;
         if (std::fabs(target  - _increment) > .002f) {
@@ -148,21 +162,18 @@ void Core::process(const float* const* in, float** out, size_t size)
         _distortion.process(_loop_bus[0], _loop_bus[1]);
 
         // Filter
-        auto lpf_mix = _filter_switch.process();
-        auto hpf_mix = std::clamp(1.f - lpf_mix, 0.f, 1.f);
-        auto fltr_freq = _filter_smooth.process(_fltr_freq);
         for (auto k = 0; k < 2; k++) {
             if (_flutter > 0) {
-                _tape_filter[k].SetFreq(tape_freq);
                 _tape_filter[k].Process(_loop_bus[k]);
                 _loop_bus[k] = _tape_filter[k].Low();
             }
-       
-            _loop_filter[k].SetFreq(fltr_freq);
+        
+            auto lpf_mix = _filter_switch.process();
+            auto hpf_mix = std::clamp(1.f - lpf_mix, 0.f, 1.f);
+
             _loop_filter[k].Process(_loop_bus[k]);
             _loop_bus[k] = lpf_mix * _loop_filter[k].Low() + hpf_mix * _loop_filter[k].High();
 
-            _in_filter[k].SetFreq(fltr_freq);
             _in_filter[k].Process(_in_bus[k]);
             _in_bus[k] = lpf_mix * _in_filter[k].Low() +  hpf_mix * _in_filter[k].High();
         }
