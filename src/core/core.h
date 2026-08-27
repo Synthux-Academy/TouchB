@@ -12,6 +12,7 @@
 #include "vox.h"
 #include "buffer.h"
 #include "distortion.h"
+#include "detector.h"
 
 namespace synthux {
 namespace touchb {
@@ -33,8 +34,6 @@ public:
 
   void add_behavior(const uint8_t idx);
   void remove_behavior(const uint8_t idx);
-
-  
 
   void set_start(const float);
   void set_size(const float);
@@ -67,6 +66,7 @@ private:
   void _set_size();
 
   static constexpr uint8_t kVoxCount = 2;
+  static constexpr uint8_t kNoVox = 0xff;
 
   std::array<float, 2> _reverb_in;
   std::array<float, 2> _reverb_out;
@@ -80,12 +80,16 @@ private:
   std::array<uint8_t, 7> _behavior;
   Buffer _buffer;
 
+  Detector _in_detector;
+  SoftSwitch _master_switch;
+
   SoftSwitch _dist_feed_switch;
   SoftSwitch _in_loop_switch;
   XFade _in_loop_mix;
   XFade _dist_feed_mix;
   XFade _dry_wet_mix;
   XFade _reverb_send;
+  
   
   OnePoleSmoother _tape_smooth;
   bleeptools::RandomImpulse _rnd_imp;

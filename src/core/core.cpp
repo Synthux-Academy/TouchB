@@ -190,6 +190,7 @@ void Core::process(const float* const* in, float** out, size_t size)
 
         // Dry / wet mix
         _dry_wet_mix.process(in0, in1, _mix_bus[0], _mix_bus[1], out[0][i], out[1][i]);
+        _in_detector.process(std::max(std::abs(in0), std::abs(in1)));
     }
     
     // Limiter
@@ -219,7 +220,7 @@ void Core::add_behavior(const uint8_t idx)
     _behavior_ptr = 0;
     _behavior[_behavior_ptr] = idx;
     _apply_behavior();
-    if (!has_behavior) {
+    if (!has_behavior && _in_detector.is_open()) {
         _trigger_vox();
         _in_loop_switch.set_on(true);
         _dist_feed_switch.set_on(true);
@@ -272,7 +273,7 @@ void Core::set_start(const float norm)
 }
 void Core::_set_start()
 {
-    auto start = _norm_start * _buffer.size();
+    auto start = _norm_start * _buffer.size() + 384; //384 == 8ms shift past the record crossfade
     for (auto& v: _vox) v.set_start(start);
 }
 

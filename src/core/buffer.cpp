@@ -47,7 +47,7 @@ void Buffer::set_recording(const bool is_rec_on) {
 
 void Buffer::_start_recording()
 {
-    _write_head = (_read_head + kRecordFade) % _buffer_size;
+    _write_head = (_read_head + 1) % _buffer_size;
     _write_counter = 0;
     _state = State::fadein;
     _is_pending = false;
