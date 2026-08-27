@@ -40,7 +40,7 @@ void Core::init(const float sample_rate, const float cb_rate) {
         f.SetDrive(.4f);
         f.SetRes(.2f);
     }
-    _filter_smooth.init(sample_rate, 0.004f);
+    _filter_smooth.init(sample_rate, 0.01f);
     
     _filter_smooth.init(cb_rate, 0.004f);
 
