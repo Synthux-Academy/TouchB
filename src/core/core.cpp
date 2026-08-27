@@ -13,7 +13,7 @@ using namespace daisysp;
 Core::Core():
 _increment          { 1.f },
 _target_increment   { 1.f },
-_in_mult            { 1.f },
+_out_mult           { 1.f },
 _behavior_ptr       { -1 }
 {
     _behavior.fill(0xff);
@@ -73,6 +73,8 @@ void Core::init(const float sample_rate, const float cb_rate) {
     set_size(1.f);
     set_mix(1.f);
     set_filter(.5f);
+
+    _out_mult = infrasonic::dbfs2lin(-6.f);
 };
 
 /* Signal path ............................................................. 
@@ -112,8 +114,8 @@ void Core::process(const float* const* in, float** out, size_t size)
     float in0, in1;
     for (size_t i = 0; i < size; i++) {
         //Write
-        in0 = in[0][i] * _in_mult;
-        in1 = in[1][i] * _in_mult;
+        in0 = in[0][i];
+        in1 = in[1][i];
         _buffer.write(in0, in1);
 
         // Init bus
@@ -192,10 +194,10 @@ void Core::process(const float* const* in, float** out, size_t size)
         _dry_wet_mix.process(in0, in1, _mix_bus[0], _mix_bus[1], out[0][i], out[1][i]);
         _in_detector.process(std::max(std::abs(in0), std::abs(in1)));
     }
-    
+
     // Limiter
     for (auto i = 0; i < 2; i++) {
-        _limiter[i].ProcessBlock(out[i], size, 0.891f); //-1dB pre gain
+        _limiter[i].ProcessBlock(out[i], size, _out_mult);
     }
 };
 
@@ -209,7 +211,7 @@ void Core::_trigger_vox(const uint8_t idx)
         default: break;
     };
     v.set_reverse(reverse);
-    v.set_shape(_fade_in ? 1.f : 0.f);
+    v.set_shape(_env_on ? .3f : 0.f);
     v.trigger();
 }
 
@@ -273,7 +275,7 @@ void Core::set_start(const float norm)
 }
 void Core::_set_start()
 {
-    auto start = _norm_start * _buffer.size() + 384; //384 == 8ms shift past the record crossfade
+    auto start = _norm_start * _buffer.size();
     for (auto& v: _vox) v.set_start(start);
 }
 
@@ -321,7 +323,7 @@ void Core::set_flutter(const float norm)
 
 void Core::set_envelope_on(const bool on)
 {
-    _fade_in = on;
+    _env_on = on;
 }
 
 void Core::set_reverb_send(const float norm)
@@ -358,9 +360,8 @@ void Core::set_play_direction(const PlayDirection direction)
     _direction = direction;
 }
 
-void Core::set_input_level(const float norm)
+void Core::set_output_level(const float norm)
 {
-    auto db = infrasonic::map(norm, 0.f, 1.f, -40.f, 0.f);
-    _in_mult = infrasonic::dbfs2lin(db);
-    _distortion.set_level_norm(_in_mult);
+    auto db = infrasonic::map(norm, 0.f, 1.f, -60.f, 0.f);
+    _out_mult = infrasonic::dbfs2lin(db);
 }

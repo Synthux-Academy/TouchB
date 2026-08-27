@@ -50,7 +50,7 @@ public:
   
   void set_mix(const float);
 
-  void set_input_level(const float);
+  void set_output_level(const float);
 
   void set_envelope_on(const bool);
   
@@ -113,7 +113,7 @@ private:
   float _increment;
   float _target_increment;
 
-  float _in_mult;
+  float _out_mult;
 
   float _flutter;
 
@@ -123,7 +123,7 @@ private:
 
   PlayDirection _direction;
   int8_t _behavior_ptr;
-  bool _fade_in;
+  bool _env_on;
   bool _rec_cued;
 };
 

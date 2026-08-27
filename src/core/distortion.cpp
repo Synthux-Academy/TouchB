@@ -39,11 +39,6 @@ void Distortion::init(const float sample_rate)
     _reduce_gain.init(sample_rate);
 }
 
-void Distortion::set_level_norm(const float norm) 
-{
-    _level = norm;
-}
-
 void Distortion::set_flavor_norm(const float norm)
 {
     _flavor = norm;
@@ -92,7 +87,7 @@ void Distortion::process(float& inout0, float& inout1)
     _reduce_gain.process(bus[0], bus[1]);
     
     auto dry = _bypass.process();
-    auto wet = infrasonic::unitclamp(1.f - dry) * kLevelCompensation * _level;
+    auto wet = infrasonic::unitclamp(1.f - dry) * kLevelCompensation;
 
     inout0 = inout0 * dry + bus[0] * wet;
     inout1 = inout1 * dry + bus[1] * wet;

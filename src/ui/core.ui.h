@@ -28,8 +28,8 @@ private:
     Touch& _touch;
     Core& _core;
 
-    MValue _fltr_val;
-    MValue _inp_val;
+    MValue _mix_val;
+    MValue _out_val;
 
     MValue _verb_send;
     MValue _verb_fb;

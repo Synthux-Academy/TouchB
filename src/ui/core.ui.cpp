@@ -47,8 +47,8 @@ void CoreUI::init()
 
     _init_timer.Init();
 
-    _fltr_val.set(.5f);
-    _inp_val.set(1.f);
+    _out_val.set(1.f);
+    _mix_val.set(1.f);
 
     _verb_send.set(0.f);
     _verb_fb.set(.8f);
@@ -92,16 +92,16 @@ void CoreUI::process()
         _core.set_flutter(_flutter.value());
     }
 
-    // Filter ........................................
-    if (_apply.test(Knobs::s37)) {
-        _core.set_filter(_fltr_val.value());
-        _core.set_input_level(_inp_val.value());
-    }
-
     //Reverb .........................................
     if (_apply.test(Knobs::s34)) {
         _core.set_reverb_send(_verb_send.value());
         _core.set_reverb_fb(_verb_fb.value());
+    }
+
+    // Mix / out
+    if (_apply.test(Knobs::s35)) {
+        _core.set_mix(_mix_val.value());
+        _core.set_output_level(_out_val.value());
     }
 
     _apply.reset();
@@ -118,8 +118,8 @@ void CoreUI::_process_ui_queue()
         _apply.set(Knobs::s34);
         _verb_send.set(knobs.GetPotValue(Knobs::s34));
 
-        _apply.set(Knobs::s37);
-        _fltr_val.set(knobs.GetPotValue(Knobs::s37));
+        _apply.set(Knobs::s35);
+        _mix_val.set(knobs.GetPotValue(Knobs::s35));
 
         _is_init = true;
     }
@@ -157,7 +157,8 @@ void CoreUI::_process_ui_queue()
                     break;
                 }
                 case Knobs::s35:
-                    _core.set_mix(val);
+                    _mix_val.process(val, !is_alt_touched);
+                    _out_val.process(val, is_alt_touched);
                     break;
 
                 case Knobs::s36:
@@ -165,8 +166,7 @@ void CoreUI::_process_ui_queue()
                     break;
 
                 case Knobs::s37: {
-                    _fltr_val.process(val, !is_alt_touched);
-                    _inp_val.process(val, is_alt_touched);
+                    _core.set_filter(val);
                     break;
                 }
             }
