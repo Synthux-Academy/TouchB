@@ -87,14 +87,13 @@ void AppImpl::init()
     _touch.init();
 
     auto seed = _touch.seed();
-    auto& audio = seed.audio_handle;
-    audio.SetSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
-    audio.SetBlockSize(96);
+    seed.SetAudioSampleRate(SaiHandle::Config::SampleRate::SAI_48KHZ);
+    seed.SetAudioBlockSize(96);
 
     _core.init(seed.AudioSampleRate(), seed.AudioCallbackRate());
     _ui.init();
 
-    audio.Start(AudioCallback);
+    seed.StartAudio(AudioCallback);
 
     // StartT5Callback(T5Callback, 250);
 
