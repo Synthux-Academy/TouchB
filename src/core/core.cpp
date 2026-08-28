@@ -157,12 +157,6 @@ void Core::process(const float* const* in, float** out, size_t size)
             }
         }
 
-        // Distort
-        // Constantly feed the distortion RMS gain either with input or loop.
-        _dist_feed_mix.set_stage(_dist_feed_switch.process());
-        _dist_feed_mix.process(_in_bus[0], _in_bus[1], _loop_bus[0], _loop_bus[1], _loop_bus[0], _loop_bus[1]);
-        _distortion.process(_loop_bus[0], _loop_bus[1]);
-
         // Filter
         for (auto k = 0; k < 2; k++) {
             if (_flutter > 0) {
@@ -179,6 +173,12 @@ void Core::process(const float* const* in, float** out, size_t size)
             _in_filter[k].Process(_in_bus[k]);
             _in_bus[k] = lpf_mix * _in_filter[k].Low() +  hpf_mix * _in_filter[k].High();
         }
+
+        // Distort
+        // Constantly feed the distortion RMS gain either with input or loop.
+        _dist_feed_mix.set_stage(_dist_feed_switch.process());
+        _dist_feed_mix.process(_in_bus[0], _in_bus[1], _loop_bus[0], _loop_bus[1], _loop_bus[0], _loop_bus[1]);
+        _distortion.process(_loop_bus[0], _loop_bus[1]);
 
         // Loop/In switch
         _in_loop_mix.set_stage(_in_loop_switch.process());

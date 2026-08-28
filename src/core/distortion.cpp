@@ -21,7 +21,7 @@ void Distortion::init(const float sample_rate)
     for (auto& w: _wah) {
         w.Init(sample_rate);
         w.SetDryWet(100.f);
-        w.SetLevel(.9f);
+        w.SetLevel(1.f);
     }
 
     // Drive
@@ -66,13 +66,15 @@ void Distortion::process(float& inout0, float& inout1)
     // Fold
     float fold_bus[2] = { inout0, inout1 };
     // for (i = 0; i < 2; i++) _fold[i].process(fold_bus[i]);
-    for (i = 0; i < 2; i++) fold_bus[i] = _wah[i].Process(fold_bus[i]);
-    _fold_gain.process(fold_bus[0], fold_bus[1]);
+    for (i = 0; i < 2; i++) {
+        fold_bus[i] = _wah[i].Process(fold_bus[i]) * _wah_mix;
+    }
+    // _fold_gain.process(fold_bus[0], fold_bus[1]);
 
     // Drive
     float drive_bus[2] = { inout0, inout1 };
-    for (i = 0; i < 2; i++) drive_bus[i] = _drive[i].Process(drive_bus[i]);
-    _drive_gain.process(drive_bus[0], drive_bus[1]);
+    for (i = 0; i < 2; i++) drive_bus[i] = _drive[i].Process(drive_bus[i]) * _drive_amnt;
+    // _drive_gain.process(drive_bus[0], drive_bus[1]);
     
     auto drive = _drive_fold_switch.process();
     auto fold = (1.f - drive);
@@ -84,7 +86,7 @@ void Distortion::process(float& inout0, float& inout1)
         // Reduce
         bus[i] = _decimator[i].Process(bus[i]);
     }
-    _reduce_gain.process(bus[0], bus[1]);
+    // _reduce_gain.process(bus[0], bus[1]);
     
     auto dry = _bypass.process();
     auto wet = infrasonic::unitclamp(1.f - dry) * kLevelCompensation;
@@ -95,32 +97,32 @@ void Distortion::process(float& inout0, float& inout1)
 
 void Distortion::_validate()
 {
-    auto wah = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .3f, 1.f);
-
-    auto fold_thresh = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .5f, .01f);
-    auto fold_gain = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, 1.f, 5.f);
-    auto drive = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .25f, .67f);
+    auto wah = infrasonic::map(_wah_amnt * _flavor, 0.f, 1.f, .3f, 1.f);
+    auto drive = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .25f, 1.f);
     auto downsample = infrasonic::map(_downsample_amnt * (1.f - _flavor), 0.f, .7f, 0.f, .9f);
     auto bits_to_crush = std::round(_bits_reduce_amnt * (1.f - _flavor));
     for (auto i = 0; i < 2; i++) {
-        _fold[i].set_gain_mult(fold_gain);
-        _fold[i].set_threshold_norm(fold_thresh);
-        
         _wah[i].SetWah(wah);
 
         _drive[i].SetDrive(drive);
         
         _decimator[i].SetBitsToCrush(bits_to_crush);
         _decimator[i].SetDownsampleFactor(downsample);
-    }   
+    } 
 }
 
 void Distortion::engage(const Params p)
 {   
     if (p.type_count > 0) {
         _drive_amnt = p.drive;
+        _drive_mix = p.drive_mix;
+
+        _wah_amnt = p.wah;
+        _wah_mix = p.wah_mix;
+
         _downsample_amnt = p.downsample;
         _bits_reduce_amnt = p.bits;
+
         _bypass.set_on(false);
         _drive_fold_switch.set_on(false);
         for (auto t: p.types) {

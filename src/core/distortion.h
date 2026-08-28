@@ -12,7 +12,7 @@ namespace touchb {
 class Distortion {
 public:
     enum class Type: uint8_t {
-        fold,
+        wah,
         drive,
         reduce,
         Count,
@@ -20,15 +20,21 @@ public:
     };
 
     struct Params {
-        std::array<Type, (size_t)Type::Count> types;    
+        std::array<Type, (size_t)Type::Count> types;
         uint8_t type_count;
 
         //Drive
         float drive;
+        float drive_mix;
 
         //Reduce
         float downsample;
         uint8_t bits;
+        float reduce_mix;
+
+        //Wah
+        float wah;
+        float wah_mix;
     };
 
     Distortion();
@@ -60,9 +66,16 @@ private:
     SoftSwitch _bypass;
 
     float _flavor;
+    
     float _drive_amnt;
+    float _drive_mix;
+    
+    float _wah_amnt;
+    float _wah_mix;
+
     float _downsample_amnt;
     uint8_t _bits_reduce_amnt;
+
 };
 
 };

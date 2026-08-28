@@ -30,27 +30,30 @@ namespace touchb {
         auto lead = (*c.idxs)[c.lead_ptr];
         switch (lead) {
             case 0: {
-                vp.distortion.types[vp.distortion.type_count++] = DT::fold;
+                vp.distortion.types[vp.distortion.type_count++] = DT::wah;
                 vp.distortion.types[vp.distortion.type_count++] = DT::reduce;
-                vp.distortion.drive = 0.53;
                 vp.distortion.bits = 4;
                 vp.distortion.downsample = 0.3;
+                vp.distortion.wah = 0.1;
+                vp.distortion.wah_mix = 3.f;
                 break;
             }
             case 1: {
-                vp.distortion.types[vp.distortion.type_count++] = DT::fold;
+                vp.distortion.types[vp.distortion.type_count++] = DT::wah;
                 vp.distortion.types[vp.distortion.type_count++] = DT::reduce;
-                vp.distortion.drive = 0.47;
                 vp.distortion.bits = 4;
-                vp.distortion.downsample = 0.3;
+                vp.distortion.downsample = .3f;
+                vp.distortion.wah = .47f;
+                vp.distortion.wah_mix = 3.f;
                 break;
             }
             case 5: {
-                vp.distortion.types[vp.distortion.type_count++] = DT::fold;
+                vp.distortion.types[vp.distortion.type_count++] = DT::wah;
                 vp.distortion.types[vp.distortion.type_count++] = DT::reduce;
-                vp.distortion.drive = 0.7;
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.6;
+                vp.distortion.wah = .7;
+                vp.distortion.wah_mix = 3.f;
                 break;
             }
             case 2: {
@@ -62,15 +65,17 @@ namespace touchb {
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.3;
-                vp.distortion.drive = 0.5;
+                vp.distortion.drive = 0.3;
+                vp.distortion.drive_mix = 0.6;
                 break;
             }
             case 4: {
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::drive;
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
-                vp.distortion.drive = 0.5;
                 vp.distortion.bits = 12;
                 vp.distortion.downsample = 0.2;
+                vp.distortion.drive = 0.4;
+                vp.distortion.drive_mix = 0.8;
                 break;
             }
             case 6: {
@@ -78,7 +83,8 @@ namespace touchb {
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.4;
-                vp.distortion.drive = 0.7;
+                vp.distortion.drive = 0.5;
+                vp.distortion.drive_mix = 0.6;
                 break;
             }
         }
