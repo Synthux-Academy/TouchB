@@ -9,4 +9,3 @@
 
 #include "smooth.h"
 #include "peak.follower.h"
-#include "rms.gain.h"

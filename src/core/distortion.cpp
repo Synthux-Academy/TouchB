@@ -28,15 +28,12 @@ void Distortion::init(const float sample_rate)
     for (auto& d: _drive) {
         d.Init();
     }
-    _drive_gain.init(sample_rate);
-    _fold_gain.init(sample_rate);
 
     // Reduce
     for (auto& d: _decimator) {
         d.Init();
         d.SetSmoothCrushing(false);
     }
-    _reduce_gain.init(sample_rate);
 }
 
 void Distortion::set_flavor_norm(const float norm)
@@ -63,30 +60,29 @@ void Distortion::process(float& inout0, float& inout1)
     float bus[2] = { inout0, inout1 };
     int i;
 
-    // Fold
-    float fold_bus[2] = { inout0, inout1 };
-    // for (i = 0; i < 2; i++) _fold[i].process(fold_bus[i]);
+    // Wah
+    float wah_bus[2] = { inout0, inout1 };
     for (i = 0; i < 2; i++) {
-        fold_bus[i] = _wah[i].Process(fold_bus[i]) * _wah_mix;
+        wah_bus[i] = _wah[i].Process(wah_bus[i]) * _wah_mix;
     }
-    // _fold_gain.process(fold_bus[0], fold_bus[1]);
 
     // Drive
     float drive_bus[2] = { inout0, inout1 };
     for (i = 0; i < 2; i++) drive_bus[i] = _drive[i].Process(drive_bus[i]) * _drive_mix;
-    // _drive_gain.process(drive_bus[0], drive_bus[1]);
     
     auto drive = _drive_fold_switch.process();
     auto fold = (1.f - drive);
 
     for (i = 0; i < 2; i++) {
         // Switch fold / drive
-        bus[i] = fold_bus[i] * fold + drive_bus[i] * drive;
+        bus[i] = wah_bus[i] * fold + drive_bus[i] * drive;
 
         // Reduce
         bus[i] = _decimator[i].Process(bus[i]);
+        if (_drive_fold_switch.is_on()) {
+            bus[i] *= 1.f / (_drive_mix + (1 - _drive_mix) * _flavor);
+        }
     }
-    // _reduce_gain.process(bus[0], bus[1]);
     
     auto dry = _bypass.process();
     auto wet = infrasonic::unitclamp(1.f - dry) * kLevelCompensation;
