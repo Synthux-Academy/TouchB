@@ -37,6 +37,9 @@ private:
     MValue _blur;
     MValue _flutter;
 
+    MValue _filter_val;
+    MValue _in_val;
+
     std::bitset<Knobs::Count> _apply;
 
     daisy::UiEventQueue _ui_queue;

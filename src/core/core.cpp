@@ -13,6 +13,7 @@ using namespace daisysp;
 Core::Core():
 _increment          { 1.f },
 _target_increment   { 1.f },
+_in_mult            { 1.f },
 _out_mult           { 1.f },
 _behavior_ptr       { -1 }
 {
@@ -114,8 +115,8 @@ void Core::process(const float* const* in, float** out, size_t size)
     float in0, in1;
     for (size_t i = 0; i < size; i++) {
         //Write
-        in0 = in[0][i];
-        in1 = in[1][i];
+        in0 = in[0][i] * _in_mult;
+        in1 = in[1][i] * _in_mult;
         _buffer.write(in0, in1);
 
         // Init bus
@@ -358,6 +359,12 @@ void Core::set_filter(const float norm)
 void Core::set_play_direction(const PlayDirection direction)
 {
     _direction = direction;
+}
+
+void Core::set_input_level(const float norm)
+{
+    auto db = infrasonic::map(norm, 0.f, 1.f, -60.f, 12.f);
+    _in_mult = infrasonic::dbfs2lin(db);
 }
 
 void Core::set_output_level(const float norm)

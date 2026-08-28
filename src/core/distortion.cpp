@@ -73,7 +73,7 @@ void Distortion::process(float& inout0, float& inout1)
 
     // Drive
     float drive_bus[2] = { inout0, inout1 };
-    for (i = 0; i < 2; i++) drive_bus[i] = _drive[i].Process(drive_bus[i]) * _drive_amnt;
+    for (i = 0; i < 2; i++) drive_bus[i] = _drive[i].Process(drive_bus[i]) * _drive_mix;
     // _drive_gain.process(drive_bus[0], drive_bus[1]);
     
     auto drive = _drive_fold_switch.process();

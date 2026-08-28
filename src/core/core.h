@@ -50,6 +50,7 @@ public:
   
   void set_mix(const float);
 
+  void set_input_level(const float);
   void set_output_level(const float);
 
   void set_envelope_on(const bool);
@@ -113,6 +114,7 @@ private:
   float _increment;
   float _target_increment;
 
+  float _in_mult;
   float _out_mult;
 
   float _flutter;

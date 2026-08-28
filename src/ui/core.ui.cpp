@@ -55,6 +55,9 @@ void CoreUI::init()
 
     _blur.set(0.f);
     _flutter.set(0.f);
+
+    _filter_val.set(.5f);
+    _in_val.set(0.6896551724f); //maps to 0db on a scale -60...+12
 };
 
 void CoreUI::process() 
@@ -104,6 +107,12 @@ void CoreUI::process()
         _core.set_output_level(_out_val.value());
     }
 
+    // Filter / in
+    if (_apply.test(Knobs::s37)) {
+        _core.set_filter(_filter_val.value());
+        _core.set_input_level(_in_val.value());
+    }
+
     _apply.reset();
 };
 
@@ -120,6 +129,9 @@ void CoreUI::_process_ui_queue()
 
         _apply.set(Knobs::s35);
         _mix_val.set(knobs.GetPotValue(Knobs::s35));
+
+        _apply.set(Knobs::s37);
+        _filter_val.set(knobs.GetPotValue(Knobs::s37));
 
         _is_init = true;
     }
@@ -166,7 +178,8 @@ void CoreUI::_process_ui_queue()
                     break;
 
                 case Knobs::s37: {
-                    _core.set_filter(val);
+                    _filter_val.process(val, !is_alt_touched);
+                    _in_val.process(val, is_alt_touched);
                     break;
                 }
             }
