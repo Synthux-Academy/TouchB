@@ -75,7 +75,7 @@ namespace touchb {
                 vp.distortion.bits = 12;
                 vp.distortion.downsample = 0.2;
                 vp.distortion.drive = 0.35;
-                vp.distortion.drive_mix = 0.17;
+                vp.distortion.drive_mix = 0.18;
                 break;
             }
             case 6: {
@@ -84,7 +84,7 @@ namespace touchb {
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.4;
                 vp.distortion.drive = 0.5;
-                vp.distortion.drive_mix = 0.16;
+                vp.distortion.drive_mix = 0.17;
                 break;
             }
         }
