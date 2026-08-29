@@ -34,6 +34,9 @@ void Distortion::init(const float sample_rate)
         d.Init();
         d.SetSmoothCrushing(false);
     }
+
+    _wah_amnt_smooth.init(sample_rate, .003f);
+    _drive_amnt_smooth.init(sample_rate, .003f);
 }
 
 void Distortion::set_flavor_norm(const float norm)
@@ -59,6 +62,16 @@ void Distortion::process(float& inout0, float& inout1)
 {
     float bus[2] = { inout0, inout1 };
     int i;
+
+    // Smooth wah/drive amounts at audio rate
+    auto wah_amnt = _wah_amnt_smooth.process(_wah_amnt);
+    auto drive_amnt = _drive_amnt_smooth.process(_drive_amnt);
+    auto wah = infrasonic::map(wah_amnt * _flavor, 0.f, 1.f, .3f, 1.f);
+    auto drive_amount = infrasonic::map(drive_amnt * _flavor, 0.f, 1.f, .25f, 1.f);
+    for (i = 0; i < 2; i++) {
+        _wah[i].SetWah(wah);
+        _drive[i].SetDrive(drive_amount);
+    }
 
     // Wah
     float wah_bus[2] = { inout0, inout1 };
@@ -93,18 +106,12 @@ void Distortion::process(float& inout0, float& inout1)
 
 void Distortion::_validate()
 {
-    auto wah = infrasonic::map(_wah_amnt * _flavor, 0.f, 1.f, .3f, 1.f);
-    auto drive = infrasonic::map(_drive_amnt * _flavor, 0.f, 1.f, .25f, 1.f);
     auto downsample = infrasonic::map(_downsample_amnt * (1.f - _flavor), 0.f, .7f, 0.f, .9f);
     auto bits_to_crush = std::round(_bits_reduce_amnt * (1.f - _flavor));
     for (auto i = 0; i < 2; i++) {
-        _wah[i].SetWah(wah);
-
-        _drive[i].SetDrive(drive);
-        
         _decimator[i].SetBitsToCrush(bits_to_crush);
         _decimator[i].SetDownsampleFactor(downsample);
-    } 
+    }
 }
 
 void Distortion::engage(const Params p)

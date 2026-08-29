@@ -60,12 +60,14 @@ private:
     SoftSwitch _bypass;
 
     float _flavor;
-    
+
     float _drive_amnt;
     float _drive_mix;
-    
+    OnePoleSmoother _drive_amnt_smooth;
+
     float _wah_amnt;
     float _wah_mix;
+    OnePoleSmoother _wah_amnt_smooth;
 
     float _downsample_amnt;
     uint8_t _bits_reduce_amnt;
