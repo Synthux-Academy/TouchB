@@ -17,6 +17,8 @@ void Distortion::init(const float sample_rate)
     //On/Off
     _bypass.init(sample_rate);
 
+    _fold_level.init(sample_rate);
+
     for (auto& w: _wah) {
         w.Init(sample_rate);
         w.SetDryWet(100.f);
@@ -79,12 +81,14 @@ void Distortion::process(float& inout0, float& inout1)
 
     // Fold
     float fold_bus[2] = { inout0, inout1 };
+    _fold_level.pre_gain(fold_bus[0], fold_bus[1]);
     for (i = 0; i < 2; i++) {
         _fold[i].process(fold_bus[i]);
         // Post-gain scales back down by the same threshold so the folded
         // output keeps roughly the same volume across light/medium/heavy.
         fold_bus[i] *= threshold * _fold_mix;
     }
+    _fold_level.post_gain(fold_bus[0], fold_bus[1]);
 
     auto fold = _wah_fold_switch.process();
     auto wah_amt = (1.f - fold);

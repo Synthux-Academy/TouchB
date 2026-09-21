@@ -5,6 +5,7 @@
 #include "synthux.h"
 #include "nocopy.h"
 #include "folder.h"
+#include "level.h"
 
 namespace synthux {
 namespace touchb {
@@ -57,6 +58,7 @@ private:
 
     void _validate();
 
+    Level _fold_level;
     std::array<synthux::Folder, 2> _fold;
     std::array<daisysp::Decimator, 2> _decimator;
     std::array<daisysp::Autowah, 2> _wah;

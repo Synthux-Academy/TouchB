@@ -45,6 +45,9 @@
 #include <algorithm>
 #include "common.h"
 
+namespace synthux {
+ namespace touchb {
+
 class Level {
 public:
     Level() = default;
@@ -151,3 +154,6 @@ private:
     float gain_db_;
     float last_linear_gain_;
 };
+
+}
+}
