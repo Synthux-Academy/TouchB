@@ -25,6 +25,10 @@ CPP_STANDARD = -std=gnu++17
 C_INCLUDES = -Isrc/ -Ilib/ -Isrc/common/
 C_USR_FLAGS = -ffast-math -funroll-loops
 
+# Bare-metal firmware has no OS loader enforcing W^X on ELF program
+# headers, so the RWX LOAD segment warning (binutils >= 2.39) is cosmetic.
+LDFLAGS += -Wl,--no-warn-rwx-segments
+
 # Sources
 CPP_SOURCES = \
 	app.cpp \
