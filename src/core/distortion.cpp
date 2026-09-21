@@ -5,12 +5,11 @@ using namespace synthux::touchb;
 using namespace daisysp;
 using namespace infrasonic;
 
-const auto kLevelCompensation = dbfs2lin(-10);
-
 Distortion::Distortion():
-_drive_amnt         { .5f },
+_fold_amnt          { .5f },
 _downsample_amnt    { .5f },
-_bits_reduce_amnt   { 4 }
+_bits_reduce_amnt   { 4 },
+_level              { 1.f }
 {}
 
 void Distortion::init(const float sample_rate)
@@ -24,11 +23,6 @@ void Distortion::init(const float sample_rate)
         w.SetLevel(1.f);
     }
 
-    // Drive
-    for (auto& d: _drive) {
-        d.Init();
-    }
-
     // Reduce
     for (auto& d: _decimator) {
         d.Init();
@@ -36,7 +30,7 @@ void Distortion::init(const float sample_rate)
     }
 
     _wah_amnt_smooth.init(sample_rate, .003f);
-    _drive_amnt_smooth.init(sample_rate, .003f);
+    _fold_amnt_smooth.init(sample_rate, .003f);
 }
 
 void Distortion::set_flavor_norm(const float norm)
@@ -47,11 +41,11 @@ void Distortion::set_flavor_norm(const float norm)
 
 /* Signal path ........................................................
 
-                dirve_bus
-      |-- _drive -- _drive_gain --|
-in >--|                           d/f-- _reduce -- _reduce_gain --|
-      |-- _fold --- _fold_gain ---|                              wet
-      |         fold_bus                                       _bypas --> out
+                fold_bus
+      |-- _fold --- _fold_gain ---|
+in >--|                           w/f-- _reduce -- _reduce_gain --|
+      |-- _wah ---- _wah_mix -----|                              wet
+      |         wah_bus                                        _bypas --> out
       |                                                          dry
       |-----------------------------------------------------------|
 
@@ -63,14 +57,18 @@ void Distortion::process(float& inout0, float& inout1)
     float bus[2] = { inout0, inout1 };
     int i;
 
-    // Smooth wah/drive amounts at audio rate
+    // Smooth wah/fold amounts at audio rate
     auto wah_amnt = _wah_amnt_smooth.process(_wah_amnt);
-    auto drive_amnt = _drive_amnt_smooth.process(_drive_amnt);
+    auto fold_amnt = _fold_amnt_smooth.process(_fold_amnt);
     auto wah = infrasonic::map(wah_amnt * _flavor, 0.f, 1.f, .3f, 1.f);
-    auto drive_amount = infrasonic::map(drive_amnt * _flavor, 0.f, 1.f, .25f, 1.f);
+    // Lower threshold == more folding == heavier distortion
+    auto threshold = infrasonic::map(fold_amnt * _flavor, 0.f, 1.f, 1.f, .05f);
     for (i = 0; i < 2; i++) {
         _wah[i].SetWah(wah);
-        _drive[i].SetDrive(drive_amount);
+        _fold[i].set_threshold_norm(threshold);
+        // Pre-gain compensates the shrinking threshold so folding density
+        // increases with the amount, rather than just clipping harder.
+        _fold[i].set_gain_mult(1.f / threshold);
     }
 
     // Wah
@@ -79,26 +77,31 @@ void Distortion::process(float& inout0, float& inout1)
         wah_bus[i] = _wah[i].Process(wah_bus[i]) * _wah_mix;
     }
 
-    // Drive
-    float drive_bus[2] = { inout0, inout1 };
-    for (i = 0; i < 2; i++) drive_bus[i] = _drive[i].Process(drive_bus[i]) * _drive_mix;
-    
-    auto drive = _drive_fold_switch.process();
-    auto fold = (1.f - drive);
+    // Fold
+    float fold_bus[2] = { inout0, inout1 };
+    for (i = 0; i < 2; i++) {
+        _fold[i].process(fold_bus[i]);
+        // Post-gain scales back down by the same threshold so the folded
+        // output keeps roughly the same volume across light/medium/heavy.
+        fold_bus[i] *= threshold * _fold_mix;
+    }
+
+    auto fold = _wah_fold_switch.process();
+    auto wah_amt = (1.f - fold);
 
     for (i = 0; i < 2; i++) {
-        // Switch fold / drive
-        bus[i] = wah_bus[i] * fold + drive_bus[i] * drive;
+        // Switch wah / fold
+        bus[i] = wah_bus[i] * wah_amt + fold_bus[i] * fold;
 
         // Reduce
         bus[i] = _decimator[i].Process(bus[i]);
-        if (_drive_fold_switch.is_on()) {
-            bus[i] *= 1.f / (_drive_mix + (1 - _drive_mix) * _flavor);
+        if (_wah_fold_switch.is_on()) {
+            bus[i] *= 1.f / (_fold_mix + (1 - _fold_mix) * _flavor);
         }
     }
     
     auto dry = _bypass.process();
-    auto wet = infrasonic::unitclamp(1.f - dry) * kLevelCompensation;
+    auto wet = infrasonic::unitclamp(1.f - dry) * _level;
 
     inout0 = inout0 * dry + bus[0] * wet;
     inout1 = inout1 * dry + bus[1] * wet;
@@ -117,8 +120,8 @@ void Distortion::_validate()
 void Distortion::engage(const Params p)
 {   
     if (p.type_count > 0) {
-        _drive_amnt = p.drive;
-        _drive_mix = p.drive_mix;
+        _fold_amnt = p.fold;
+        _fold_mix = p.fold_mix;
 
         _wah_amnt = p.wah;
         _wah_mix = p.wah_mix;
@@ -126,11 +129,13 @@ void Distortion::engage(const Params p)
         _downsample_amnt = p.downsample;
         _bits_reduce_amnt = p.bits;
 
+        _level = p.level;
+
         _bypass.set_on(false);
-        _drive_fold_switch.set_on(false);
+        _wah_fold_switch.set_on(false);
         for (auto t: p.types) {
-            if (t == Distortion::Type::drive) {
-                _drive_fold_switch.set_on(true);
+            if (t == Distortion::Type::fold) {
+                _wah_fold_switch.set_on(true);
                 break;
             }
         }

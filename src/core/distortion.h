@@ -4,6 +4,7 @@
 
 #include "synthux.h"
 #include "nocopy.h"
+#include "folder.h"
 
 namespace synthux {
 namespace touchb {
@@ -12,7 +13,7 @@ class Distortion {
 public:
     enum class Type: uint8_t {
         wah,
-        drive,
+        fold,
         reduce,
         Count,
         None
@@ -22,9 +23,9 @@ public:
         std::array<Type, (size_t)Type::Count> types;
         uint8_t type_count;
 
-        //Drive
-        float drive;
-        float drive_mix;
+        //Fold
+        float fold;
+        float fold_mix;
 
         //Reduce
         float downsample;
@@ -34,6 +35,9 @@ public:
         //Wah
         float wah;
         float wah_mix;
+
+        //Output
+        float level;
     };
 
     Distortion();
@@ -52,18 +56,18 @@ private:
 
     void _validate();
 
-    std::array<daisysp::Overdrive, 2> _drive;
+    std::array<synthux::Folder, 2> _fold;
     std::array<daisysp::Decimator, 2> _decimator;
     std::array<daisysp::Autowah, 2> _wah;
-    
-    SoftSwitch _drive_fold_switch;
+
+    SoftSwitch _wah_fold_switch;
     SoftSwitch _bypass;
 
     float _flavor;
 
-    float _drive_amnt;
-    float _drive_mix;
-    OnePoleSmoother _drive_amnt_smooth;
+    float _fold_amnt;
+    float _fold_mix;
+    OnePoleSmoother _fold_amnt_smooth;
 
     float _wah_amnt;
     float _wah_mix;
@@ -71,6 +75,8 @@ private:
 
     float _downsample_amnt;
     uint8_t _bits_reduce_amnt;
+
+    float _level;
 
 };
 

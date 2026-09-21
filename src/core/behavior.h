@@ -1,6 +1,7 @@
 #include <array>
 #include <stdint.h>
 #include "vox.h"
+#include "common/common.h"
 
 namespace synthux {
 namespace touchb {
@@ -36,6 +37,7 @@ namespace touchb {
                 vp.distortion.downsample = 0.3;
                 vp.distortion.wah = 0.2;
                 vp.distortion.wah_mix = 3.f;
+                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
                 break;
             }
             case 1: {
@@ -45,6 +47,7 @@ namespace touchb {
                 vp.distortion.downsample = .3f;
                 vp.distortion.wah = .6f;
                 vp.distortion.wah_mix = 3.f;
+                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
                 break;
             }
             case 5: {
@@ -54,6 +57,7 @@ namespace touchb {
                 vp.distortion.downsample = 0.6;
                 vp.distortion.wah = 1.f;
                 vp.distortion.wah_mix = 3.f;
+                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
                 break;
             }
             case 2: {
@@ -61,30 +65,36 @@ namespace touchb {
                 break;
             }
             case 3: {
-                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::drive;
+                // Fold - light
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::fold;
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.3;
-                vp.distortion.drive = 0.27;
-                vp.distortion.drive_mix = 0.43;
+                vp.distortion.fold = 0.25;
+                vp.distortion.fold_mix = 0.9;
+                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
                 break;
             }
             case 4: {
-                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::drive;
+                // Fold - medium
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::fold;
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
                 vp.distortion.bits = 12;
                 vp.distortion.downsample = 0.2;
-                vp.distortion.drive = 0.35;
-                vp.distortion.drive_mix = 0.18;
+                vp.distortion.fold = 0.55;
+                vp.distortion.fold_mix = 0.9;
+                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
                 break;
             }
             case 6: {
-                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::drive;
+                // Fold - heavy
+                vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::fold;
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.4;
-                vp.distortion.drive = 0.5;
-                vp.distortion.drive_mix = 0.17;
+                vp.distortion.fold = 0.9;
+                vp.distortion.fold_mix = 0.9;
+                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
                 break;
             }
         }
