@@ -25,6 +25,7 @@ public:
 
         //Fold
         float fold;
+        float fold_gain_kof;
         float fold_mix;
 
         //Reduce
@@ -66,6 +67,7 @@ private:
     float _flavor;
 
     float _fold_amnt;
+    float _fold_gain_kof;
     float _fold_mix;
     OnePoleSmoother _fold_amnt_smooth;
 

@@ -24,7 +24,10 @@ namespace touchb {
     {
         Behavior vp;
         memset(&vp, 0, sizeof(vp));
+
         vp.distortion.types.fill(Distortion::Type::None);
+        vp.distortion.level = 1.f;
+        vp.distortion.fold_gain_kof = 1.f;
         
         using DT = Distortion::Type;
 
@@ -36,8 +39,7 @@ namespace touchb {
                 vp.distortion.bits = 4;
                 vp.distortion.downsample = 0.3;
                 vp.distortion.wah = 0.2;
-                vp.distortion.wah_mix = 3.f;
-                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
+                vp.distortion.wah_mix = 1.f;
                 break;
             }
             case 1: {
@@ -46,8 +48,7 @@ namespace touchb {
                 vp.distortion.bits = 4;
                 vp.distortion.downsample = .3f;
                 vp.distortion.wah = .6f;
-                vp.distortion.wah_mix = 3.f;
-                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
+                vp.distortion.wah_mix = 1.f;
                 break;
             }
             case 5: {
@@ -56,8 +57,7 @@ namespace touchb {
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.6;
                 vp.distortion.wah = 1.f;
-                vp.distortion.wah_mix = 3.f;
-                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
+                vp.distortion.wah_mix = 1.f;
                 break;
             }
             case 2: {
@@ -70,9 +70,9 @@ namespace touchb {
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.3;
-                vp.distortion.fold = 0.25;
+                vp.distortion.fold = 0.55;
+                vp.distortion.fold_gain_kof = 0.6;
                 vp.distortion.fold_mix = 0.9;
-                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
                 break;
             }
             case 4: {
@@ -81,9 +81,9 @@ namespace touchb {
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
                 vp.distortion.bits = 12;
                 vp.distortion.downsample = 0.2;
-                vp.distortion.fold = 0.55;
+                vp.distortion.fold = 0.63;
+                vp.distortion.fold_gain_kof = 0.7;
                 vp.distortion.fold_mix = 0.9;
-                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
                 break;
             }
             case 6: {
@@ -92,12 +92,13 @@ namespace touchb {
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.4;
-                vp.distortion.fold = 0.9;
+                vp.distortion.fold = 0.7;
+                vp.distortion.fold_gain_kof = 0.8;
                 vp.distortion.fold_mix = 0.9;
-                vp.distortion.level = infrasonic::dbfs2lin(-10.f);
                 break;
             }
         }
+        
         return vp;
     }   
 };

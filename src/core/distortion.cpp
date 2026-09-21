@@ -62,13 +62,13 @@ void Distortion::process(float& inout0, float& inout1)
     auto fold_amnt = _fold_amnt_smooth.process(_fold_amnt);
     auto wah = infrasonic::map(wah_amnt * _flavor, 0.f, 1.f, .3f, 1.f);
     // Lower threshold == more folding == heavier distortion
-    auto threshold = infrasonic::map(fold_amnt * _flavor, 0.f, 1.f, 1.f, .05f);
+    auto threshold = infrasonic::map(fold_amnt * _flavor, 0.f, 1.f, .5f, .01f);
     for (i = 0; i < 2; i++) {
         _wah[i].SetWah(wah);
         _fold[i].set_threshold_norm(threshold);
         // Pre-gain compensates the shrinking threshold so folding density
         // increases with the amount, rather than just clipping harder.
-        _fold[i].set_gain_mult(1.f / threshold);
+        _fold[i].set_gain_mult(1.f / (_fold_gain_kof * threshold));
     }
 
     // Wah
@@ -121,6 +121,7 @@ void Distortion::engage(const Params p)
 {   
     if (p.type_count > 0) {
         _fold_amnt = p.fold;
+        _fold_gain_kof = p.fold_gain_kof;
         _fold_mix = p.fold_mix;
 
         _wah_amnt = p.wah;
