@@ -71,7 +71,7 @@ namespace touchb {
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.3;
                 vp.distortion.fold = 0.01;
-                vp.distortion.fold_gain_kof = 0.9;
+                vp.distortion.fold_gain_kof = 2.f;
                 vp.distortion.fold_mix = 1.f;
                 break;
             }
@@ -81,8 +81,8 @@ namespace touchb {
                 vp.distortion.types[vp.distortion.type_count++] = Distortion::Type::reduce;
                 vp.distortion.bits = 12;
                 vp.distortion.downsample = 0.2;
-                vp.distortion.fold = 0.5;
-                vp.distortion.fold_gain_kof = 0.7;
+                vp.distortion.fold = 0.6;
+                vp.distortion.fold_gain_kof = 2.f;
                 vp.distortion.fold_mix = 1.f;
                 break;
             }
@@ -93,7 +93,7 @@ namespace touchb {
                 vp.distortion.bits = 10;
                 vp.distortion.downsample = 0.4;
                 vp.distortion.fold = 1.f;
-                vp.distortion.fold_gain_kof = 0.5;
+                vp.distortion.fold_gain_kof = 1.5f;
                 vp.distortion.fold_mix = 1.f;
                 break;
             }
