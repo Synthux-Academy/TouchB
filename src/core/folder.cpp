@@ -11,7 +11,7 @@ _threshold  { .8f }
 
 void Folder::process(float& inout)
 {
-    auto val = (inout + _offset) * _gain;
+    auto val = inout * _gain + _offset;
     auto t2 = 2.f * _threshold;
     auto o2 = 2.f * _offset;
     
