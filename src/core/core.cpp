@@ -219,11 +219,11 @@ void Core::_trigger_vox(const uint8_t idx)
 void Core::add_behavior(const uint8_t idx)
 {
     if (idx >= 7) return;
-    auto has_behavior = _has_behavior();
-    _behavior_ptr = 0;
+    auto had_behavior = _has_behavior();
+    _behavior_ptr ++;
     _behavior[_behavior_ptr] = idx;
     _apply_behavior();
-    if (!has_behavior && _in_detector.is_open()) {
+    if (!had_behavior && _in_detector.is_open()) {
         _trigger_vox();
         _in_loop_switch.set_on(true);
         _dist_feed_switch.set_on(true);

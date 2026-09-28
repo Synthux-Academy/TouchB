@@ -26,9 +26,7 @@ static float snapped_speed(const float speed)
 
 CoreUI::CoreUI(Touch& touch, Core& core):
 _touch       { touch },
-_core        { core },
-_latched_pad { kNoLatch },
-_is_latched  { false }
+_core        { core }
 {}
 
 void CoreUI::init() 
@@ -44,6 +42,11 @@ void CoreUI::init()
     auto on_release = std::bind(&CoreUI::_on_pad_release, this, _1);
     _touch.pads().set_on_touch(on_touch);
     _touch.pads().set_on_release(on_release);
+
+    auto on_latch_on = std::bind(&CoreUI::_on_latch_on, this, _1);
+    auto on_latch_off = std::bind(&CoreUI::_on_latch_off, this, _1);
+    _latch.set_on_note_on(on_latch_on);
+    _latch.set_on_note_off(on_latch_off);
 
     _init_timer.Init();
 
@@ -65,14 +68,9 @@ void CoreUI::process()
     _touch.process();
     _process_ui_queue();
     
-    auto switch_a = _touch.switches().A();
     // Latch //////////////////////////
-    static auto was_latched = false;
-    _is_latched = switch_a == 1;
-    if (was_latched && !_is_latched && !_touched.any()) {
-        _release_latched();
-    }
-    was_latched = _is_latched;
+    auto switch_a = _touch.switches().A();
+    _latch.set_on(switch_a == 1);
 
     // Env ////////////////////////////
     static auto was_env_on = false;
@@ -197,37 +195,32 @@ void CoreUI::_on_pad_touch(Pads::Pad pad)
         case Pads::Tou:
         case Pads::Ch: break;
         default: {
-            _latched_pad = pad;
-            _core.add_behavior(pad - 3);     
+            _latch.note_on(pad-3);
         }
-    }
+    }  
 };
 
 void CoreUI::_on_pad_release(Pads::Pad pad)
 {
     _touched.reset(pad);
-
-    if (_is_latched) return;
-    _release_pad(pad);
-};
-
-void CoreUI::_release_pad(Pads::Pad pad)
-{
     switch (pad) {
         case Pads::TopLeft:
         case Pads::TopCenter:
         case Pads::TopRight:
         case Pads::Tou:
         case Pads::Ch: break;
-        default: _core.remove_behavior(pad - 3);
+        default: _latch.note_off(pad - 3);
     }
+};
+
+void CoreUI::_on_latch_on(const uint8_t pad)
+{
+    _core.add_behavior(pad);
 }
 
-void CoreUI::_release_latched()
+void CoreUI::_on_latch_off(const uint8_t pad)
 {
-    if (_latched_pad != kNoLatch) {
-        _release_pad(_latched_pad);
-    }   
+    _core.remove_behavior(pad);
 }
 
 #ifdef USB_MIDI

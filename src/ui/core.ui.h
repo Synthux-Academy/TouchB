@@ -8,6 +8,7 @@
 #include "core/core.h"
 
 #include "common/mvalue.h"
+#include "latch.h"
 
 namespace synthux { 
 namespace touchb {
@@ -40,7 +41,10 @@ private:
     MValue _filter_val;
     MValue _in_val;
 
+    Latch<7> _latch;
+
     std::bitset<Knobs::Count> _apply;
+    
 
     daisy::UiEventQueue _ui_queue;
     daisy::PotMonitor<Knobs, Knobs::Count> _pot_monitor;
@@ -51,16 +55,14 @@ private:
     std::bitset<Pads::Count> _touched;
     void _on_pad_touch(Pads::Pad);
     void _on_pad_release(Pads::Pad);
-    void _release_pad(Pads::Pad);
-    void _release_latched();
+    void _on_latch_on(const uint8_t);
+    void _on_latch_off(const uint8_t);
 
     daisy::MidiUsbHandler _midi;
     bool _process_midi();
     bool _process_realtime(daisy::MidiEvent&);
     void _process_note_on(daisy::NoteOnEvent&);
 
-    Pads::Pad _latched_pad;
-    bool _is_latched;
     bool _is_init;
 };
 
