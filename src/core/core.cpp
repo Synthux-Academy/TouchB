@@ -74,8 +74,6 @@ void Core::init(const float sample_rate, const float cb_rate) {
     set_size(1.f);
     set_mix(1.f);
     set_filter(.5f);
-
-    _out_mult = infrasonic::dbfs2lin(-6.f);
 };
 
 /* Signal path ............................................................. 

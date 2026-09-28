@@ -60,7 +60,7 @@ void CoreUI::init()
     _flutter.set(0.f);
 
     _filter_val.set(.5f);
-    _in_val.set(0.6896551724f); //maps to 0db on a scale -60...+12
+    _in_val.set(60.f/72.f); //maps to 0db on a scale -60...+12
 };
 
 void CoreUI::process() 
