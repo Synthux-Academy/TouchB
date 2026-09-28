@@ -1,10 +1,5 @@
 //
-// A slow, program-dependent "compander" gain rider.
-//
-//   A conventional fast RMS leveler tracks level over a short window, so it
-//   reacts to *every* transient. That's fine for continuous material (radio)
-//   but on sparse/transient material (a loose drum loop) it behaves like a
-//   heavy limiter, pumping on every hit.
+// A slow, program-dependent gain rider.
 //
 // Approach:
 //   1. Track a *long-term* loudness estimate (hundreds of ms to seconds).
