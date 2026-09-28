@@ -53,13 +53,15 @@ public:
   void set_input_level(const float);
   void set_output_level(const float);
 
-  void set_envelope_on(const bool);
+  void set_loop_on(const bool);
   
   void set_play_direction(const PlayDirection);
 
 private:
   NOCOPY(Core)
 
+  void _run_loop();
+  void _stop_loop();
   void _trigger_vox(const uint8_t idx = 0);
   bool _has_behavior() const { return _behavior_ptr >= 0; };
   void _apply_behavior();
@@ -85,8 +87,8 @@ private:
   SoftSwitch _master_switch;
 
   SoftSwitch _dist_feed_switch;
-  SoftSwitch _in_loop_switch;
-  XFade _in_loop_mix;
+  SoftSwitch _in_fx_switch;
+  XFade _in_fx_mix;
   XFade _dist_feed_mix;
   XFade _dry_wet_mix;
   XFade _reverb_send;
@@ -125,8 +127,8 @@ private:
 
   PlayDirection _direction;
   int8_t _behavior_ptr;
-  bool _env_on;
   bool _rec_cued;
+  bool _loop_on;
 };
 
 };

@@ -45,7 +45,7 @@ void Core::init(const float sample_rate, const float cb_rate) {
     
     _filter_smooth.init(cb_rate, 0.004f);
 
-    _in_loop_switch.init(sample_rate);
+    _in_fx_switch.init(sample_rate);
     _dist_feed_switch.init(sample_rate);
     _filter_switch.init(sample_rate);
 
@@ -176,14 +176,14 @@ void Core::process(const float* const* in, float** out, size_t size)
         }
 
         // Distort
-        // Constantly feed the distortion RMS gain either with input or loop.
+        // Constantly feed the distortion gain either with input or loop.
         _dist_feed_mix.set_stage(_dist_feed_switch.process());
         _dist_feed_mix.process(_in_bus[0], _in_bus[1], _loop_bus[0], _loop_bus[1], _loop_bus[0], _loop_bus[1]);
         _distortion.process(_loop_bus[0], _loop_bus[1]);
 
         // Loop/In switch
-        _in_loop_mix.set_stage(_in_loop_switch.process());
-        _in_loop_mix.process(_in_bus[0], _in_bus[1], _loop_bus[0], _loop_bus[1], _mix_bus[0], _mix_bus[1]);
+        _in_fx_mix.set_stage(_in_fx_switch.process());
+        _in_fx_mix.process(_in_bus[0], _in_bus[1], _loop_bus[0], _loop_bus[1], _mix_bus[0], _mix_bus[1]);
 
         // Reverb
         _reverb_send.process(0, 0, _mix_bus[0], _mix_bus[1], _reverb_in[0], _reverb_in[1]);
@@ -212,8 +212,33 @@ void Core::_trigger_vox(const uint8_t idx)
         default: break;
     };
     v.set_reverse(reverse);
-    v.set_shape(_env_on ? .3f : 0.f);
+    v.set_shape(0.f);
     v.trigger();
+}
+
+void Core::set_loop_on(const bool on)
+{
+    if (on == _loop_on) return;
+    if (on) {
+        if (_has_behavior()) _run_loop();
+    }
+    else {
+        _stop_loop();
+    }
+    _loop_on = on;
+    _dist_feed_switch.set_on(_loop_on);
+}
+
+void Core::_run_loop()
+{
+    _trigger_vox();
+    _rec_cued = true;
+}
+
+void Core::_stop_loop()
+{
+    for (auto& v: _vox) v.stop();
+    _rec_cued = false;
 }
 
 void Core::add_behavior(const uint8_t idx)
@@ -224,10 +249,9 @@ void Core::add_behavior(const uint8_t idx)
     _behavior[_behavior_ptr] = idx;
     _apply_behavior();
     if (!had_behavior && _in_detector.is_open()) {
-        _trigger_vox();
-        _in_loop_switch.set_on(true);
-        _dist_feed_switch.set_on(true);
-        _rec_cued = true;
+        _dist_feed_switch.set_on(_loop_on);
+        _in_fx_switch.set_on(true);
+        if (_loop_on) _run_loop();
     }
 }
 
@@ -249,11 +273,10 @@ void Core::remove_behavior(const uint8_t idx)
     }
 
     if (!_has_behavior()) {
-        for (auto& v: _vox) v.stop();
         _distortion.disengage();
-        _in_loop_switch.set_on(false);
         _dist_feed_switch.set_on(false);
-        _rec_cued = false;
+        _in_fx_switch.set_on(false);
+        if (_loop_on) _stop_loop();
     }
     else {
         _apply_behavior();
@@ -320,11 +343,6 @@ void Core::set_blur(const float norm)
 void Core::set_flutter(const float norm)
 {
     _flutter = infrasonic::unitclamp(norm * .25f);
-}
-
-void Core::set_envelope_on(const bool on)
-{
-    _env_on = on;
 }
 
 void Core::set_reverb_send(const float norm)

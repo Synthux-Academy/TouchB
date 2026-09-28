@@ -72,16 +72,8 @@ void CoreUI::process()
     auto switch_a = _touch.switches().A();
     _latch.set_on(switch_a == 1);
 
-    // Env ////////////////////////////
-    static auto was_env_on = false;
-    auto env_on = switch_a == 2;
-    if (!was_env_on && env_on) {
-        _core.set_envelope_on(true);
-    }
-    else if (was_env_on && !env_on) {
-        _core.set_envelope_on(false);
-    }
-    was_env_on = env_on;
+    // FX only ////////////////////////
+    _core.set_loop_on(switch_a != 2);
     
     // Direction .....................................
     auto switch_b = _touch.switches().B();
