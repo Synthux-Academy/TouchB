@@ -54,7 +54,7 @@ void CoreUI::init()
     _mix_val.set(1.f);
 
     _verb_send.set(0.f);
-    _verb_fb.set(.8f);
+    _verb_fb.set(.87f);
 
     _blur.set(0.f);
     _flutter.set(0.f);

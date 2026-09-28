@@ -111,7 +111,6 @@ void Core::process(const float* const* in, float** out, size_t size)
     }
 
     /* Process -------------------------------------------------*/
-
     float in0, in1;
     for (size_t i = 0; i < size; i++) {
         //Write
