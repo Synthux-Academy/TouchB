@@ -48,7 +48,7 @@ void CoreUI::init()
     _latch.set_on_note_on(on_latch_on);
     _latch.set_on_note_off(on_latch_off);
 
-    _init_timer.Init();
+    _timer.Init();
 
     _out_val.set(1.f);
     _mix_val.set(1.f);
@@ -67,7 +67,16 @@ void CoreUI::process()
 {
     _touch.process();
     _process_ui_queue();
-    
+
+    if (_led_on) {
+        if (_timer.HasPassedMs(30)) _led_on = false;
+    }
+    else if (_core.read_reset_vox_triggered()) {
+        _led_on = true;
+        _timer.Restart();
+    }
+    _touch.set_led(_led_on);
+
     // Latch //////////////////////////
     auto switch_a = _touch.switches().A();
     _latch.set_on(switch_a == 1);
@@ -109,7 +118,7 @@ void CoreUI::process()
 void CoreUI::_process_ui_queue()
 {
     // Init mvalues from knobs ......................
-    if (!_is_init && _init_timer.HasPassedMs(100)) {
+    if (!_is_init && _timer.HasPassedMs(100)) {
         auto& knobs = _touch.knobs();
         _apply.set(Knobs::s33);
         _blur.set(knobs.GetPotValue(Knobs::s33));

@@ -45,12 +45,11 @@ private:
 
     std::bitset<Knobs::Count> _apply;
     
-
     daisy::UiEventQueue _ui_queue;
     daisy::PotMonitor<Knobs, Knobs::Count> _pot_monitor;
     void _process_ui_queue();
 
-    daisy::StopwatchTimer _init_timer;
+    daisy::StopwatchTimer _timer;
 
     std::bitset<Pads::Count> _touched;
     void _on_pad_touch(Pads::Pad);
@@ -64,6 +63,7 @@ private:
     void _process_note_on(daisy::NoteOnEvent&);
 
     bool _is_init;
+    bool _led_on;
 };
 
 }; // namespace touchb

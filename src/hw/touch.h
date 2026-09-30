@@ -35,6 +35,10 @@ public:
       _pads.process();
     }
 
+    void set_led(const bool on) {
+      _seed.SetLed(on);
+    }
+
     Pads& pads() { return _pads; }
     Knobs& knobs() { return _knobs; }
     Switches& switches() { return _switches; }

@@ -57,6 +57,8 @@ public:
   
   void set_play_direction(const PlayDirection);
 
+  bool read_reset_vox_triggered();
+
 private:
   NOCOPY(Core)
 
@@ -129,6 +131,7 @@ private:
   int8_t _behavior_ptr;
   bool _rec_cued;
   bool _loop_on;
+  bool _vox_triggered;
 };
 
 };

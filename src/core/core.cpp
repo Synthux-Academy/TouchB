@@ -211,6 +211,7 @@ void Core::_trigger_vox(const uint8_t idx)
     v.set_reverse(reverse);
     v.set_shape(0.f);
     v.trigger();
+    _vox_triggered = true;
 }
 
 void Core::set_loop_on(const bool on)
@@ -386,4 +387,11 @@ void Core::set_output_level(const float norm)
 {
     auto db = infrasonic::map(norm, 0.f, 1.f, -60.f, 0.f);
     _out_mult = infrasonic::dbfs2lin(db);
+}
+
+bool Core::read_reset_vox_triggered()
+{
+    auto is_triggerd = _vox_triggered;
+    _vox_triggered = false;
+    return is_triggerd;
 }
