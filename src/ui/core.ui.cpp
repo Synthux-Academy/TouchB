@@ -17,7 +17,7 @@ static constexpr std::array<float, 7> kSpeedSteps = {
     .666666667f,    // 12
     1.f             // 24
 };
-static float snapped_speed(const float speed)
+inline float snapped_speed(const float speed)
 {
     auto s = static_cast<float>(kSpeedSteps.size() - 1);
     auto idx = static_cast<int>(std::clamp(std::round(speed * s), 0.f, s));
@@ -136,17 +136,17 @@ void CoreUI::_process_ui_queue()
             val = infrasonic::map(val, .02f, .95f, 0.f, 1.f);
             _apply.set(id);
             switch (id) {
-                case Knobs::s30: 
+                case Knobs::s30: {
                     _core.set_size(val);
-                    break;
+                } break;
 
-                case Knobs::s31: 
+                case Knobs::s31: {
                     _core.set_start(val);
-                    break;
+                } break;
 
-                case Knobs::s32: 
-                    _core.set_pitch(snapped_speed(val)); 
-                    break;
+                case Knobs::s32: {
+                    _core.set_pitch(is_alt_touched ? snapped_speed(val) : val); 
+                } break;
 
                 case Knobs::s33: {
                     _blur.process(val, !is_alt_touched);
@@ -158,20 +158,19 @@ void CoreUI::_process_ui_queue()
                     _verb_fb.process(val, is_alt_touched);
                     break;
                 }
-                case Knobs::s35:
+                case Knobs::s35: {
                     _mix_val.process(val, !is_alt_touched);
                     _out_val.process(val, is_alt_touched);
-                    break;
+                } break;
 
-                case Knobs::s36:
+                case Knobs::s36: {
                     _core.set_distortion_flavor(val);
-                    break;
+                } break;
 
                 case Knobs::s37: {
                     _filter_val.process(val, !is_alt_touched);
-                    _in_val.process(val, is_alt_touched);
-                    break;
-                }
+                    _in_val.process(val, is_alt_touched);  
+                } break;
             }
         }
     }
